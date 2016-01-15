@@ -12,10 +12,11 @@ from . import DATA_DIR
 logger = logging.getLogger(__name__)
 
 
+# note: including `author` slows comment requests considerably
 COMMENT_ATTRS = [
     'id',
     'created_utc',
-    'author',
+    # 'author',
     'body',
     'score',
     'ups',
@@ -47,7 +48,8 @@ def cache_submission(r, submission_id):
 
     logger.debug("Caching comments...")
     comments_df = pd.DataFrame(comments, columns=COMMENT_ATTRS)
-    csv_path = os.path.join(DATA_DIR, 'comments', '{}.csv'.format(submission_id))
+    csv_path = os.path.join(
+        DATA_DIR, 'comments', '{}.csv'.format(submission_id))
     comments_df.to_csv(csv_path, encoding='utf-8')
 
 

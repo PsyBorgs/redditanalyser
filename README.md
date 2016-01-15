@@ -2,12 +2,14 @@
 
 A scraper for Reddit communities with scripts to perform post-scraping text analysis
 
-## Requirements
+## Usage
+
+### Requirements
 
 - [python 2.7](https://www.python.org/)
 - [virtualenv](https://pypi.python.org/pypi/virtualenv)
 
-## Installation
+### Installation
 
 Clone the repository, then setup a virtual environment in the repo directory:
 
@@ -21,3 +23,13 @@ Activate the virtual environment:
 Install requisite Python packages:
 
     $ pip install -r requirements.txt
+
+### Configuration
+
+Copy `settings-sample.py` and rename it `settings.py`. Then configure the file, as appropriate.
+
+### Execution
+
+Run the scraper:
+
+    $ python -m scripts.comment_scraper

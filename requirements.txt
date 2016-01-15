@@ -1,2 +1,5 @@
 pandas==0.17.1
 praw==3.3.0
+tqdm==3.4.0
+beautifulsoup4=>4.4.1
+requests=>2.9.1

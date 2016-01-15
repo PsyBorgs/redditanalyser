@@ -57,8 +57,8 @@ docs/_build/
 target/
 
 # Data
-*.db
-*.csv
+data/*.db
+data/**/*.csv
 
 # Settings
 settings.py

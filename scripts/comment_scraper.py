@@ -3,55 +3,25 @@
 import os
 import logging
 
-import praw
 import pandas as pd
+import praw
 import tqdm
+from bs4 import BeautifulSoup
+from markdown import markdown
+from requests.exceptions import HTTPError
 
-from . import DATA_DIR
+from . import DATA_DIR, COMMENT_ATTRS
 from settings import Settings
 
 
 logger = logging.getLogger(__name__)
 
 
-# note: including `author` slows comment requests considerably
-COMMENT_ATTRS = [
-    'id',
-    'created_utc',
-    # 'author',
-    'body',
-    'score',
-    'ups',
-    'downs',
-    'subreddit',
-    'subreddit_id',
-    'controversiality',
-    'is_root',
-    'parent_id',
-    'gilded',
-    'permalink',
-]
-USER_AGENT = "Comment thread scraper by /u/PsyBorgs"
-
-
-def cache_submission(r, submission_id):
-    logger.debug("Downloading submission comments...")
-    submission = r.get_submission(submission_id=submission_id)
-    submission.replace_more_comments()
-
-    logger.debug("Flattening and filtering comments...")
-    comments = []
-    for c in praw.helpers.flatten_tree(submission.comments):
-        if isinstance(c, praw.objects.Comment):
-            comment = {}
-            for attr in COMMENT_ATTRS:
-                comment[attr] = getattr(c, attr)
-            comments.append(comment)
-
+def cache_submission_comments(submission):
     logger.debug("Caching comments...")
-    comments_df = pd.DataFrame(comments, columns=COMMENT_ATTRS)
+    submission_df = pd.DataFrame(submission, columns=COMMENT_ATTRS)
     csv_path = os.path.join(
-        DATA_DIR, 'comments', '{}.csv'.format(submission_id))
+        DATA_DIR, 'comments', '{}.csv'.format(submission.fullname))
     comments_df.to_csv(csv_path, encoding='utf-8')
 
 
@@ -70,15 +40,23 @@ def process_redditor(redditor, limit, count_word_freqs, max_threshold):
         single submission.
 
     """
-    for entry in with_status(iterable=redditor.get_overview(limit=limit)):
-        if isinstance(entry, praw.objects.Comment):  # Parse comment
-            parse_text(text=entry.body, count_word_freqs=count_word_freqs,
-                       max_threshold=max_threshold)
-        else:  # Parse submission
-            process_submission(submission=entry,
-                               count_word_freqs=count_word_freqs,
-                               max_threshold=max_threshold,
-                               include_comments=False)
+    entries = redditor.get_overview(limit=limit)
+    for entry in tqdm(iterable=entries, nested=True):
+        if isinstance(entry, praw.objects.Comment):
+            # parse comment
+            parse_text(
+                text=entry.body,
+                count_word_freqs=count_word_freqs,
+                max_threshold=max_threshold
+                )
+        else:
+            # parse submission
+            process_submission(
+                submission=entry,
+                count_word_freqs=count_word_freqs,
+                max_threshold=max_threshold,
+                include_comments=False
+                )
 
 
 def process_submission(submission, count_word_freqs, max_threshold, include_comments=True):
@@ -95,20 +73,31 @@ def process_submission(submission, count_word_freqs, max_threshold, include_comm
     :param include_comments: include the submission's comments when True
 
     """
-    if include_comments:  # parse all the comments for the submission
+    # parse the title of the submission
+    parse_text(
+        text=submission.title,
+        count_word_freqs=count_word_freqs,
+        max_threshold=max_threshold,
+        is_markdown=False
+        )
+
+    # parse all the comments for the submission
+    if include_comments:
         submission.replace_more_comments()
         for comment in praw.helpers.flatten_tree(submission.comments):
-            parse_text(text=comment.body, count_word_freqs=count_word_freqs,
-                       max_threshold=max_threshold)
-
-    # parse the title of the submission
-    parse_text(text=submission.title, count_word_freqs=count_word_freqs,
-               max_threshold=max_threshold, is_markdown=False)
+            parse_text(
+                text=comment.body,
+                count_word_freqs=count_word_freqs,
+                max_threshold=max_threshold
+                )
 
     # parse the selftext of the submission (if applicable)
     if submission.is_self:
-        parse_text(text=submission.selftext, count_word_freqs=count_word_freqs,
-                   max_threshold=max_threshold)
+        parse_text(
+            text=submission.selftext,
+            count_word_freqs=count_word_freqs,
+            max_threshold=max_threshold
+            )
 
 
 def process_subreddit(subreddit, period, limit, count_word_freqs, max_threshold):
@@ -130,9 +119,16 @@ def process_subreddit(subreddit, period, limit, count_word_freqs, max_threshold)
 
     """
 
-    # determine period to count the words over
-    params = {"t": period}
-    for submission in with_status(iterable=subreddit.get_top(limit=limit, params=params)):
+    # set submission query params
+    params = {
+        "t": period,
+        "show": "all"
+    }
+
+    # process submissions
+    submissions = subreddit.get_new(limit=limit, params=params)
+    for submission in tqdm(
+            iterable=submissions, desc="Submissions", nested=True):
         try:
             process_submission(submission=submission,
                                count_word_freqs=count_word_freqs,
@@ -154,19 +150,35 @@ def main():
     # get settings
     settings = Settings()
 
-    # connect to Reddit
-    r = praw.Reddit(user_agent=settings.username)
+    # open connection to Reddit
+    handler = None
+    if options.multiprocess:
+        handler = praw.handlers.MultiprocessHandler()
+    user_agent = "Reddit scraper bot by /u/{}".format(settings.username)
 
-    for target in targets:
+    reddit = praw.Reddit(user_agent=user_agent, handler=handler)
+    reddit.config.decode_html_entities = True
+
+    # process targets
+    for target in tqdm(iterable=targets, desc="Reddit targets"):
         if target.startswith("/r/"):
-            is_subreddit = True
+            process_subreddit(
+                subreddit=reddit.get_subreddit(target),
+                period=settings.period,
+                limit=settings.limit,
+                count_word_freqs=settings.count_word_freqs,
+                max_threshold=settings.max_threshold
+                )
         elif target.startswith("/u/"):
-            is_subreddit = False
+            process_redditor(
+                redditor=reddit.get_redditor(target),
+                limit=settings.limit,
+                count_word_freqs=settings.count_word_freqs,
+                max_threshold=settings.max_threshold
+                )
         else:
             logger.error("\"{}\" is an invalid target. Skipping."
                 .format(target))
-    submission_id = "dtg4j"
-    cache_submission(r, submission_id)
 
 
 if __name__ == '__main__':

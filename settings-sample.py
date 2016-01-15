@@ -3,7 +3,7 @@ class Settings(object):
 
     Note: Every object must have a value.
     """
-    # Sets your Reddit username for the bot. Don't forget to set this!
+    # Your Reddit username for the bot. Don't forget to set this!
     username = None
 
     # A list of subreddits that you are targeting for scraping.
@@ -13,7 +13,7 @@ class Settings(object):
         "/r/technology"
     ]
 
-    # Period to count words over:; e.g., day/week/month/year/all
+    # Period to count words over; e.g., day/week/month/year/all
     period = "all"
 
     # Maximum number of submissions/comments to count word frequencies for
@@ -24,32 +24,10 @@ class Settings(object):
     # in word counts (prevents word spamming in a single submission)
     max_threshold = 0.34
 
-    # Words repeated in text blocks (titles, selftexts, comment bodies)
-    # increment the word count, rather than being counted a word once per block
+    # Count repeated words in text blocks (titles, selftexts, comment bodies)
+    # and increment the word count, rather than counting each word occurrence
+    # only once per block
     count_word_freqs = True
 
     # Enable PRAW multiprocess support
     multiprocess = True
-
-    options, args = parser.parse_args()
-
-    if len(args) != 2:
-        parser.error("Invalid number of arguments provided.")
-    user, target = args
-
-    if target.startswith("/r/"):
-        options.is_subreddit = True
-    elif target.startswith("/u/"):
-        options.is_subreddit = False
-    else:
-        parser.error("Invalid target.")
-
-    if options.period not in ["day", "week", "month", "year", "all"]:
-        parser.error("Invalid period.")
-
-    if options.include_dictionary:
-        with open(os.path.join(PACKAGE_DIR, "words", "dict-words.txt"), "r") as in_file:
-            for line in in_file:
-                COMMON_WORDS.add(line.strip().lower())
-
-    return user, target, options

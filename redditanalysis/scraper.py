@@ -10,18 +10,20 @@ from bs4 import BeautifulSoup
 from markdown import markdown
 from requests.exceptions import HTTPError
 
-from . import DATA_DIR, COMMENT_ATTRS
+from . import COMMENT_ATTRS
 from settings import Config
 
 
 logger = logging.getLogger(__name__)
+# project configuration settings
+cfg = Config()
 
 
 def cache_submission_comments(submission):
     logger.debug("Caching comments...")
     submission_df = pd.DataFrame(submission, columns=COMMENT_ATTRS)
     csv_path = os.path.join(
-        DATA_DIR, 'comments', '{}.csv'.format(submission.fullname))
+        cfg.DATA_DIR, 'comments', '{}.csv'.format(submission.fullname))
     comments_df.to_csv(csv_path, encoding='utf-8')
 
 
@@ -146,9 +148,6 @@ def process_subreddit(subreddit, period, limit, count_word_freqs, max_threshold)
 
 def main():
     logging.basicConfig(level="WARN")
-
-    # get configuration settings
-    cfg = Config()
 
     # setup PRAW handler
     handler = None

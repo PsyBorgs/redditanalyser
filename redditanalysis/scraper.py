@@ -11,7 +11,7 @@ from markdown import markdown
 from requests.exceptions import HTTPError
 
 from . import DATA_DIR, COMMENT_ATTRS
-from config import Config
+from settings import Config
 
 
 logger = logging.getLogger(__name__)
@@ -150,11 +150,13 @@ def main():
     # get configuration settings
     cfg = Config()
 
-    # open connection to Reddit
+    # setup PRAW handler
     handler = None
-    if options.multiprocess:
+    if cfg.MULTIPROCESS:
         handler = praw.handlers.MultiprocessHandler()
-    user_agent = "Reddit scraper bot by /u/{}".format(cfg.username)
+
+    # open connection to Reddit
+    user_agent = "Reddit scraper bot by /u/{}".format(cfg.USERNAME)
 
     reddit = praw.Reddit(user_agent=user_agent, handler=handler)
     reddit.config.decode_html_entities = True
@@ -164,17 +166,17 @@ def main():
         if target.startswith("/r/"):
             process_subreddit(
                 subreddit=reddit.get_subreddit(target),
-                period=cfg.period,
-                limit=cfg.limit,
-                count_word_freqs=cfg.count_word_freqs,
-                max_threshold=cfg.max_threshold
+                period=cfg.PERIOD,
+                limit=cfg.LIMIT,
+                count_word_freqs=cfg.COUNT_WORD_FREQS,
+                max_threshold=cfg.MAX_THRESHOLD
                 )
         elif target.startswith("/u/"):
             process_redditor(
                 redditor=reddit.get_redditor(target),
-                limit=cfg.limit,
-                count_word_freqs=cfg.count_word_freqs,
-                max_threshold=cfg.max_threshold
+                limit=cfg.LIMIT,
+                count_word_freqs=cfg.COUNT_WORD_FREQS,
+                max_threshold=cfg.MAX_THRESHOLD
                 )
         else:
             logger.error("\"{}\" is an invalid target. Skipping."

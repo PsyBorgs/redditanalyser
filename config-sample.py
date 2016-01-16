@@ -1,9 +1,10 @@
-class Settings(object):
-    """Settings for your project.
+class Config(object):
+    """Settings for your Reddit scraper project.
 
     Note: Every object must have a value.
     """
-    # Your Reddit username for the bot. Don't forget to set this!
+    # Your Reddit username for the bot.
+    # IMPORTANT: This must be set before running the code.
     username = None
 
     # A list of subreddits that you are targeting for scraping.

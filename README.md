@@ -26,7 +26,9 @@ Install requisite Python packages:
 
 ### Configuration
 
-Copy `settings-sample.py` and rename it `settings.py`. Then configure the file, as appropriate.
+Copy `config-sample.py` in the root directory and rename it `config.py`. Then configure the file, as appropriate.
+
+Note: You *must* set the username before executing the scraper.
 
 ### Execution
 

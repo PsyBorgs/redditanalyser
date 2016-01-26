@@ -43,5 +43,5 @@ class Config(object):
     MULTIPROCESS = True
 
     # Set database type (the default settings should suffice)
-    DB_PATH = os.path.join(Config.PROJECT_ROOT, 'prod.db')
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, 'reddit.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)

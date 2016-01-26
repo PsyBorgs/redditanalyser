@@ -6,7 +6,6 @@ import logging
 import pandas as pd
 import praw
 import tqdm
-from bs4 import BeautifulSoup
 from markdown import markdown
 from requests.exceptions import HTTPError
 

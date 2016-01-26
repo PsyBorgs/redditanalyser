@@ -61,7 +61,8 @@ def process_redditor(redditor, limit, count_word_freqs, max_threshold):
                 )
 
 
-def process_submission(submission, count_word_freqs, max_threshold, include_comments=True):
+def process_submission(
+        submission, count_word_freqs, max_threshold, include_comments=True):
     """Parse a submission's text and body (if applicable).
 
     :param count_word_freqs: if False, only count a word once per text block
@@ -102,7 +103,8 @@ def process_submission(submission, count_word_freqs, max_threshold, include_comm
             )
 
 
-def process_subreddit(subreddit, period, limit, count_word_freqs, max_threshold):
+def process_subreddit(
+        subreddit, period, limit, count_word_freqs, max_threshold):
     """Parse comments, title text, and selftext in a given subreddit.
 
     :param period: the time period to scrape the subreddit over (day, week,
@@ -136,14 +138,16 @@ def process_subreddit(subreddit, period, limit, count_word_freqs, max_threshold)
                                count_word_freqs=count_word_freqs,
                                max_threshold=max_threshold)
         except HTTPError as exc:
-            logger.error("Skipping submission {0} due to HTTP status {1}"
-                             " error. Continuing..."
-                             .format(submission.permalink.encode("UTF-8"),
-                                     exc.response.status_code))
+            logger.error(
+                "Skipping submission {0} due to HTTP status {1} error. "
+                "Continuing..."
+                format(submission.permalink.encode("UTF-8"),
+                       exc.response.status_code)
+                       )
         except ValueError:  # Occurs occasionally with empty responses
-            logger.error("Skipping submission {0} due to ValueError."
-                             .format(submission.permalink.encode("UTF-8")))
-
+            logger.error(
+                "Skipping submission {0} due to ValueError."
+                format(submission.permalink.encode("UTF-8")))
 
 
 def main():
@@ -178,8 +182,8 @@ def main():
                 max_threshold=cfg.MAX_THRESHOLD
                 )
         else:
-            logger.error("\"{}\" is an invalid target. Skipping."
-                .format(target))
+            logger.error(
+                "\"{}\" is an invalid target. Skipping...".format(target))
 
 
 if __name__ == '__main__':

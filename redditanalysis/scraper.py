@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 import logging
+import os
+import sys
 
 import pandas as pd
 import praw
@@ -13,9 +14,14 @@ from . import COMMENT_ATTRS
 from settings import Config
 
 
+logging.basicConfig(level="DEBUG")
 logger = logging.getLogger(__name__)
+
 # project configuration settings
 cfg = Config()
+if not cfg.USERNAME:
+    logger.error("Username in settings must be set. Exiting...")
+    sys.exit()
 
 
 def cache_submission_comments(submission):
@@ -139,19 +145,17 @@ def process_subreddit(
         except HTTPError as exc:
             logger.error(
                 "Skipping submission {0} due to HTTP status {1} error. "
-                "Continuing..."
-                format(submission.permalink.encode("UTF-8"),
-                       exc.response.status_code)
-                       )
+                "Continuing...".format(
+                    submission.permalink.encode("UTF-8"),
+                    exc.response.status_code)
+                    )
         except ValueError:  # Occurs occasionally with empty responses
             logger.error(
-                "Skipping submission {0} due to ValueError."
-                format(submission.permalink.encode("UTF-8")))
+                "Skipping submission {0} due to ValueError.".format(
+                    submission.permalink.encode("UTF-8")))
 
 
 def main():
-    logging.basicConfig(level="WARN")
-
     # setup PRAW handler
     handler = None
     if cfg.MULTIPROCESS:

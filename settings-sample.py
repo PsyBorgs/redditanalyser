@@ -10,7 +10,7 @@ class Config(object):
     # Project paths
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    DATA_DIR = os.path.join(PROJECT_DIR, 'data')
+    DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
     # Your Reddit username for the bot.
     # IMPORTANT: This must be set before running the code.
@@ -43,5 +43,5 @@ class Config(object):
     MULTIPROCESS = True
 
     # Set database type (the default settings should suffice)
-    DB_PATH = os.path.join(Config.PROJECT_ROOT, 'reddit.db')
+    DB_PATH = os.path.join(PROJECT_ROOT, 'reddit.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)

@@ -8,12 +8,15 @@ A scraper for Reddit communities with scripts to perform post-scraping text anal
 
 - [python 2.7](https://www.python.org/)
 - [virtualenv](https://pypi.python.org/pypi/virtualenv)
+- [fabric](http://fabfile.org/)
 
 ### Installation
 
-Clone the repository, then setup a virtual environment in the repo directory:
+Clone the repository, then bootstrap the environment:
 
     $ virtualenv env
+
+This sets up the virtual environment in the repo directory and installs the required Python packages.
 
 Activate the virtual environment:
 

@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from . import COMMENT_ATTRS
 from settings import Config
-from .models import Submission
+from .models import Submission, Comment
 
 
 logging.basicConfig(level="DEBUG")
@@ -23,6 +23,12 @@ cfg = Config()
 if not cfg.USERNAME:
     logger.error("Username in settings must be set. Exiting...")
     sys.exit()
+
+
+def _model_columns(db_model):
+    """Return the columns names from a given DB model.
+    """
+    return [c.name for c in db_model.__table__.columns]
 
 
 def cache_submission_comments(submission):
@@ -67,18 +73,43 @@ def process_redditor(redditor, limit, count_word_freqs, max_threshold):
                 )
 
 
+def parse_comments(submission):
+    """Parse a submission's comments according to the structure of the
+    database model schema.
+
+    :param submission_id: the source submission's id
+
+
+    :return: a list of Submission comment dicts.
+    """
+    comments = []
+    submission.replace_more_comments()
+    for c in praw.helpers.flatten_tree(submission.comments):
+        comment_dict = c.__dict__
+        # NOTE: author is a special case
+        comment = {
+            "submission_id": submission.id,
+            "author": c.author.name
+        }
+        del comment_dict["author"]
+
+        for k in _model_columns(Comment):
+            if k in comment_dict:
+                comment[k] = comment_dict[k]
+        comments.append(comment)
+
+    return comments
+
+
 def process_submission(submission):
     """Inject submission data into the database.
     """
     pass
 
 
-def parse_submission(submission, db_model, include_comments=True):
+def parse_submission(submission, include_comments=True):
     """Parse a submission's text and body (if applicable) according to the
     structure of the database model schema.
-
-    :param db_model: the database model (Submission), which provides a schema
-        for data organization.
 
     :param include_comments: include the submission's comments when True
 
@@ -94,30 +125,14 @@ def parse_submission(submission, db_model, include_comments=True):
     del submission_dict["author"]
 
     # collect data, given the columns in the db model
-    model_columns = [c.name for c in db_model.__table__.columns]
-    for k in model_columns:
+    for k in _model_columns(Submission):
         if k in submission_dict:
             info[k] = submission_dict[k]
 
     # parse all the comments for the submission
     comments = None
     if include_comments:
-        submission.replace_more_comments()
-        for comment in praw.helpers.flatten_tree(submission.comments):
-            pass
-            # parse_text(
-            #     text=comment.body,
-            #     count_word_freqs=count_word_freqs,
-            #     max_threshold=max_threshold
-            #     )
-
-    # parse the selftext of the submission (if applicable)
-    if submission.is_self:
-        parse_text(
-            text=submission.selftext,
-            count_word_freqs=count_word_freqs,
-            max_threshold=max_threshold
-            )
+        comments = parse_comments(submission)
 
     return info, comments
 

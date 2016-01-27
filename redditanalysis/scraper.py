@@ -6,9 +6,9 @@ import sys
 
 import pandas as pd
 import praw
-import tqdm
 from markdown import markdown
 from requests.exceptions import HTTPError
+from tqdm import tqdm
 
 from . import COMMENT_ATTRS
 from settings import Config

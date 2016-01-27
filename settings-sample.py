@@ -8,8 +8,8 @@ class Config(object):
     Note: Every object must have a value.
     """
     # Project paths
-    APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))  # This directory
+    APP_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, 'redditanalysis'))
     DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
     # Your Reddit username for the bot.

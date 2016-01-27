@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
 from redditanalysis import models
-from settings import Settings
+from settings import Config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -16,8 +16,7 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-config.set_main_option(
-    'sqlalchemy.url', Settings.get('SQLALCHEMY_DATABASE_URI'))
+config.set_main_option('sqlalchemy.url', Config.SQLALCHEMY_DATABASE_URI)
 target_metadata = models.Base.metadata
 
 # other values from the config, defined by the needs of env.py,

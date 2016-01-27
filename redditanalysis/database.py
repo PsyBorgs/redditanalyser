@@ -3,15 +3,17 @@
 utilities.
 """
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, schema
+from sqlalchemy.orm import relationship
+import sqlalchemy as sa
 
 
+Base = declarative_base()
 # Alias common SQLAlchemy names
-db = schema
-Column = db.Column
+Column = sa.schema.Column
+db = sa
 
 
-class Base(object):
+class BaseMixin(object):
     """Mixin that adds some default properties and methods to the SQLAlchemy
     declarative base.
     """
@@ -59,8 +61,8 @@ class CRUDMixin(object):
         return commit and db.session.commit()
 
 
-class Model(Base, CRUDMixin, db.Model):
-    """Base model class that includes CRUD convenience methods."""
+class Model(BaseMixin, CRUDMixin, Base):
+    """Base model class that includes CRUD and Base convenience methods."""
     __abstract__ = True
 
 

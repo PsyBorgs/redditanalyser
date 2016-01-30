@@ -26,9 +26,9 @@ class Config(object):
     # Period to count words over; e.g., day/week/month/year/all
     PERIOD = "all"
 
-    # Maximum number of submissions/comments to count word frequencies for
-    # Note: For no limit, set value to `0`
-    LIMIT = 0
+    # Maximum number of submissions/comments to return
+    # Note: For no limit, set value to None
+    LIMIT = None
 
     # Maximum relative frequency in the text a word can appear to be considered
     # in word counts (prevents word spamming in a single submission)

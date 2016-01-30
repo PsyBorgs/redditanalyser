@@ -9,8 +9,10 @@ from redditanalysis.database import (
 )
 
 
-class Submission(Model, SurrogatePK):
+class Submission(Model):
     __tablename__ = 'submissions'
+
+    id = db.Column(db.String, primary_key=True)
 
     created_utc = Column(db.Float, nullable=False)
     fullname = Column(db.String, nullable=False)
@@ -27,8 +29,10 @@ class Submission(Model, SurrogatePK):
     num_comments = Column(db.Integer, nullable=False)
 
 
-class Comment(Model, SurrogatePK):
+class Comment(Model):
     __tablename__ = 'comments'
+
+    id = db.Column(db.String, primary_key=True)
 
     created_utc = Column(db.Float, nullable=False)
     parent_id = Column(db.String, nullable=False)
@@ -37,7 +41,7 @@ class Comment(Model, SurrogatePK):
     submission_id = ReferenceCol('submissions')
     submission = relationship('Submission', backref='comments')
 
-    author = Column(db.String, nullable=False)
+    author = Column(db.String)
     body = Column(db.UnicodeText, nullable=False)
 
     ups = Column(db.Integer, nullable=False)

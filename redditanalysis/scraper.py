@@ -146,8 +146,7 @@ def parse_submission(submission, include_comments=True):
     return info, comments
 
 
-def process_subreddit(
-        subreddit, period, limit, count_word_freqs, max_threshold):
+def process_subreddit(subreddit, period, limit, cached_ids=None):
     """Parse comments, title text, and selftext in a given subreddit.
 
     :param period: the time period to scrape the subreddit over (day, week,
@@ -155,17 +154,7 @@ def process_subreddit(
 
     :param limit: the maximum number of submissions to scrape from the
     subreddit
-
-    :param count_word_freqs: if False, only count a word once per text block
-        (title, selftext, comment body) rather than incrementing the total for
-        for each instance.
-
-    :param max_threshold: maximum relative frequency in the text a word can
-        appear to be considered in word counts. prevents word spamming in a
-        single submission.
-
     """
-
     # set submission query params
     params = {
         "t": period,
@@ -175,19 +164,22 @@ def process_subreddit(
     # process submissions
     submissions = subreddit.get_new(limit=limit, params=params)
     for s in tqdm(submissions, desc="Submissions", nested=True):
-        try:
-            submission = parse_submission(s, db_model=Submission)
-        except HTTPError as exc:
-            logger.error(
-                "Skipping submission {0} due to HTTP status {1} error. "
-                "Continuing...".format(
-                    submission.permalink.encode("UTF-8"),
-                    exc.response.status_code)
-                    )
-        except ValueError:  # Occurs occasionally with empty responses
-            logger.error(
-                "Skipping submission {0} due to ValueError.".format(
-                    submission.permalink.encode("UTF-8")))
+        if cached_ids is not None and s.id not in cached_ids:
+            try:
+                submission, comments = parse_submission(s)
+                process_comments(comments)
+                process_submission(submission)
+            except HTTPError as exc:
+                logger.error(
+                    "Skipping submission {0} due to HTTP status {1} error. "
+                    "Continuing...".format(
+                        submission.permalink.encode("UTF-8"),
+                        exc.response.status_code)
+                        )
+            except ValueError:  # Occurs occasionally with empty responses
+                logger.error(
+                    "Skipping submission {0} due to ValueError.".format(
+                        submission.permalink.encode("UTF-8")))
 
 
 def main():
@@ -199,27 +191,28 @@ def main():
     # open connection to Reddit
     user_agent = "Reddit analytics scraper by /u/{}".format(cfg.USERNAME)
 
-    reddit = praw.Reddit(user_agent=user_agent, handler=handler)
-    reddit.config.decode_html_entities = True
+    r = praw.Reddit(user_agent=user_agent, handler=handler)
+    r.config.decode_html_entities = True
+
+    # get a list of cached submission IDs
+    cached_submissions = session.query(Submission).all()
+    cached_ids = [s.id for s in cached_submissions]
 
     # process targets
     for target in tqdm(iterable=cfg.TARGETS, desc="Reddit targets"):
         if target.startswith("/r/"):
             subreddit = target[3:]
             process_subreddit(
-                subreddit=reddit.get_subreddit(subreddit),
+                subreddit=r.get_subreddit(subreddit),
                 period=cfg.PERIOD,
                 limit=cfg.LIMIT,
-                count_word_freqs=cfg.COUNT_WORD_FREQS,
-                max_threshold=cfg.MAX_THRESHOLD
+                cached_ids=cached_ids
                 )
         elif target.startswith("/u/"):
             redditor = target[3:]
             process_redditor(
-                redditor=reddit.get_redditor(redditor),
-                limit=cfg.LIMIT,
-                count_word_freqs=cfg.COUNT_WORD_FREQS,
-                max_threshold=cfg.MAX_THRESHOLD
+                redditor=r.get_redditor(redditor),
+                limit=cfg.LIMIT
                 )
         else:
             logger.error(

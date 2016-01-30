@@ -91,13 +91,17 @@ def parse_comments(submission):
     submission.replace_more_comments()
     for c in praw.helpers.flatten_tree(submission.comments):
         comment_dict = c.__dict__
-        # NOTE: author is a special case
+
+        # NOTE: author is a special case (and must be present)
+        author = c.author.name if hasattr(c.author, "name") else None
+        if not author:
+            continue
+
         comment = {
             "submission_id": submission.id,
-            "author": c.author.name
+            "author": author
         }
-        del comment_dict["author"]
-
+        del comment_dict["author"]  # no longer needed
         for k in _model_columns(Comment):
             if k in comment_dict:
                 comment[k] = comment_dict[k]
@@ -121,19 +125,18 @@ def parse_submission(submission, include_comments=True):
 
     :return: Submission info and comments (if applicable).
     """
-    submission_dict = submission.__dict__
+    sub_dict = submission.__dict__
     info = {
-        "fullname": submission.fullname  # attribute only
+        "fullname": submission.fullname  # only available as attribute
     }
-
     # treat author as special case to avoid additional API requests
-    info["author"] = submission_dict["author"].name
-    del submission_dict["author"]
+    info["author"] = sub_dict["author"].name if sub_dict["author"] else ""
+    del sub_dict["author"]
 
     # collect data, given the columns in the db model
     for k in _model_columns(Submission):
-        if k in submission_dict:
-            info[k] = submission_dict[k]
+        if k in sub_dict:
+            info[k] = sub_dict[k]
 
     # parse all the comments for the submission
     comments = None

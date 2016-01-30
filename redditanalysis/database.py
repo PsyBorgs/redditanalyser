@@ -37,28 +37,28 @@ class CRUDMixin(object):
     delete) operations.
     """
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, session, **kwargs):
         """Create a new record and save it the database."""
         instance = cls(**kwargs)
-        return instance.save()
+        return instance.save(session)
 
-    def update(self, commit=True, **kwargs):
+    def update(self, session, commit=True, **kwargs):
         """Update specific fields of a record."""
         for attr, value in kwargs.iteritems():
             setattr(self, attr, value)
-        return commit and self.save() or self
+        return commit and self.save(session) or self
 
-    def save(self, commit=True):
+    def save(self, session, commit=True):
         """Save the record."""
-        db.session.add(self)
+        session.add(self)
         if commit:
-            db.session.commit()
+            session.commit()
         return self
 
     def delete(self, commit=True):
         """Remove the record from the database."""
-        db.session.delete(self)
-        return commit and db.session.commit()
+        session.delete(self)
+        return commit and session.commit()
 
 
 class Model(BaseMixin, CRUDMixin, Base):

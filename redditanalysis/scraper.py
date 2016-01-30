@@ -8,6 +8,8 @@ import pandas as pd
 import praw
 from markdown import markdown
 from requests.exceptions import HTTPError
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
 
 from . import COMMENT_ATTRS
@@ -24,19 +26,16 @@ if not cfg.USERNAME:
     logger.error("Username in settings must be set. Exiting...")
     sys.exit()
 
+# setup DB session
+engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
+Session = sessionmaker(bind=engine)
+session = Session()
+
 
 def _model_columns(db_model):
     """Return the columns names from a given DB model.
     """
     return [c.name for c in db_model.__table__.columns]
-
-
-def cache_submission_comments(submission):
-    logger.debug("Caching comments...")
-    submission_df = pd.DataFrame(submission, columns=COMMENT_ATTRS)
-    csv_path = os.path.join(
-        cfg.DATA_DIR, 'comments', '{}.csv'.format(submission.fullname))
-    comments_df.to_csv(csv_path, encoding='utf-8')
 
 
 def process_redditor(redditor, limit, count_word_freqs, max_threshold):
@@ -73,12 +72,18 @@ def process_redditor(redditor, limit, count_word_freqs, max_threshold):
                 )
 
 
+def process_comments(comments):
+    """Inject comments data into the database.
+    """
+    for c in tqdm(comments, desc="Injecting comments into DB"):
+        Comment.create(session, **c)
+
+
 def parse_comments(submission):
     """Parse a submission's comments according to the structure of the
     database model schema.
 
     :param submission_id: the source submission's id
-
 
     :return: a list of Submission comment dicts.
     """
@@ -102,9 +107,10 @@ def parse_comments(submission):
 
 
 def process_submission(submission):
-    """Inject submission data into the database.
+    """Injecting submission data into the database.
     """
-    pass
+    logger.info(process_submission.__doc__)
+    Submission.create(session, **submission)
 
 
 def parse_submission(submission, include_comments=True):

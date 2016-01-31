@@ -7,13 +7,14 @@ from redditanalysis.models import Submission, Comment
 
 
 cfg = Config()
+
 # setup PRAW
 user_agent = "Reddit analytics scraper by /u/{}".format(cfg.USERNAME)
 reddit = praw.Reddit(user_agent=user_agent)
 
 
-def test_parse_submission_42y3i7():
-    submission_id = "42y3i7"
+def test_parse_submission_2lyq0v():
+    submission_id = "2lyq0v"
     submission = reddit.get_submission(submission_id=submission_id)
 
     # si = submission info; sc = submission comments
@@ -26,30 +27,30 @@ def test_parse_submission_42y3i7():
     expected_values = [
         ('id', submission_id),
         ('fullname', "t3_{}".format(submission_id)),
-        ('created_utc', 1453910407.0),
-        ('subreddit_id', 't5_mouw'),
-        ('permalink', 'https://www.reddit.com/r/science/comments/42y3i7'
-                      '/static_stretching_before_exercise_proven_to_be/'),
-        ('author', 'Fang88'),
-        ('title', 'Static stretching before exercise proven to be beneficial'
-                  ' in new metastudy.'),
+        ('created_utc', 1415713246.0),
+        ('subreddit_id', 't5_2sptq'),
+        ('permalink', 'https://www.reddit.com/r/datascience/comments/2lyq0v/'
+                      'how_to_become_a_data_scientist_in_8_easy_steps/'),
+        ('author', 'f365legend'),
+        ('title', 'How to become a data scientist in 8 easy steps '
+                  '[Infographic]'),
         ('selftext', ''),
-        ('num_comments', 0)
     ]
     for k, v in expected_values:
         assert si[k] == v
 
     # scores
     expected_scores = [
-        ('ups', 4),
+        ('ups', 60),
         ('downs', 0),
-        ('score', 4)
+        ('score', 60),
+        ('num_comments', 26)
     ]
     for k, v in expected_scores:
         assert si[k] >= v
 
     # comments
-    assert not sc
+    assert sc
 
 
 def _comments_for_2zxglv(sc, submission_id):
@@ -107,16 +108,16 @@ def test_parse_submission_2zxglv():
         ('author', 'teh_shit'),
         ('title', 'Best way to download comments from a subreddit, given a '
                   'time interval?'),
-        ('num_comments', 7)
     ]
     for k, v in expected_values:
         assert si[k] == v
 
     # scores
     expected_scores = [
-        ('ups', 4),
+        ('ups', 3),
         ('downs', 0),
-        ('score', 4)
+        ('score', 3),
+        ('num_comments', 7)
     ]
     for k, v in expected_scores:
         assert si[k] >= v

@@ -4,9 +4,7 @@ import logging
 import os
 import sys
 
-import pandas as pd
 import praw
-from markdown import markdown
 from requests.exceptions import HTTPError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -17,7 +15,7 @@ from settings import Config
 from .models import Submission, Comment
 
 
-logging.basicConfig(level="DEBUG")
+logging.basicConfig(level="WARN")
 logger = logging.getLogger(__name__)
 
 # project configuration settings

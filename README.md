@@ -29,7 +29,7 @@ Install requisite Python packages:
 
 ### Configuration
 
-Copy `config-sample.py` in the root directory and rename it `config.py`. Then configure the file, as appropriate.
+Copy `settings-sample.py` in the root directory and rename it `settings.py`. Then configure the file, as appropriate.
 
 Note: You *must* set the username before executing the scraper.
 
@@ -38,3 +38,10 @@ Note: You *must* set the username before executing the scraper.
 Run the scraper:
 
     $ python -m scripts.comment_scraper
+
+
+## Testing
+
+Setup bootstrap environment, configure settings, and then run:
+
+    $ py.test redditanalysis

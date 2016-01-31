@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # Data
-data/*.db
+*.db
 data/**/*.csv
 
 # Settings

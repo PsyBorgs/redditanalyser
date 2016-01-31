@@ -8,9 +8,9 @@ class Config(object):
     Note: Every object must have a value.
     """
     # Project paths
-    APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    DATA_DIR = os.path.join(PROJECT_DIR, 'data')
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))  # This directory
+    APP_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, 'redditanalysis'))
+    DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
     # Your Reddit username for the bot.
     # IMPORTANT: This must be set before running the code.
@@ -26,9 +26,9 @@ class Config(object):
     # Period to count words over; e.g., day/week/month/year/all
     PERIOD = "all"
 
-    # Maximum number of submissions/comments to count word frequencies for
-    # Note: For no limit, set value to `0`
-    LIMIT = 0
+    # Maximum number of submissions/comments to return
+    # Note: For no limit, set value to None
+    LIMIT = None
 
     # Maximum relative frequency in the text a word can appear to be considered
     # in word counts (prevents word spamming in a single submission)
@@ -43,5 +43,5 @@ class Config(object):
     MULTIPROCESS = True
 
     # Set database type (the default settings should suffice)
-    DB_PATH = os.path.join(Config.PROJECT_ROOT, 'reddit.db')
+    DB_PATH = os.path.join(PROJECT_ROOT, 'reddit.db')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)

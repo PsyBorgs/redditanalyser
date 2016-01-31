@@ -1,6 +1,6 @@
 # reddit-MTBI-scraper
 
-A scraper for Reddit communities with scripts to perform post-scraping text analysis
+A scraper for Reddit communities (or users) with scripts to perform post-scraping text analysis.
 
 ## Usage
 
@@ -25,7 +25,7 @@ Activate the virtual environment:
 
 Install requisite Python packages:
 
-    $ pip install -r requirements.txt
+    $ fab bootstrap
 
 ### Configuration
 
@@ -37,7 +37,7 @@ Note: You *must* set the username before executing the scraper.
 
 Run the scraper:
 
-    $ python -m scripts.comment_scraper
+    $ fab scrape
 
 
 ## Testing

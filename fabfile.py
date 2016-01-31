@@ -31,13 +31,9 @@ def bootstrap():
     with virtualenv():
         local("pip install -r {}".format(requirements))
 
-    # create env directories
-    with lcd(ENV_DIR):
-        dirs = [
-            os.path.join('var', 'cache', 'comments'),
-            os.path.join('var', 'cache', 'submissions'),
-        ]
-        if sys.platform == 'win32':
-            map(lambda x: local('mkdir {0}'.format(x)), dirs)
-        else:
-            map(lambda x: local('mkdir -p {0}'.format(x)), dirs)
+
+def scrape():
+    """Run Reddit scraper.
+    """
+    with virtualenv():
+        local("python -m redditanalysis.scraper")

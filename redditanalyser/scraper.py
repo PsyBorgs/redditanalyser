@@ -10,8 +10,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
 
-from . import COMMENT_ATTRS
 from settings import Config
+from . import COMMENT_ATTRS
 from .models import Submission, Comment
 
 

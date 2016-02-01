@@ -1,4 +1,4 @@
-from redditanalysis.database import (
+from .database import (
     Base,
     db,
     Column,

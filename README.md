@@ -44,4 +44,4 @@ Run the scraper:
 
 Setup bootstrap environment, configure settings, and then run:
 
-    $ py.test redditanalysis
+    $ fab test

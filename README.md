@@ -1,4 +1,4 @@
-# reddit-MTBI-scraper
+# redditanalyser
 
 A scraper for Reddit communities (or users) with scripts to perform post-scraping text analysis.
 

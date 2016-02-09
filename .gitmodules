@@ -1,0 +1,3 @@
+[submodule "lib/snudown"]
+	path = lib/snudown
+	url = git@github.com:reddit/snudown.git

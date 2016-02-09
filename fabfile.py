@@ -8,6 +8,7 @@ from fabric.api import local, lcd, prefix, env
 
 BASE_DIR = os.path.join(os.path.dirname(__file__))
 ENV_DIR = os.path.join(BASE_DIR, 'env')
+LIB_DIR = os.path.join(BASE_DIR, 'lib')
 
 
 @contextmanager
@@ -31,6 +32,9 @@ def bootstrap():
     with virtualenv():
         local("pip install -r {}".format(requirements))
 
+        # install Reddit markdown parser
+        with lcd(os.path.join(LIB_DIR, 'snudown')):
+            local("python setup.py install")
 
 def scrape():
     """Run Reddit scraper.

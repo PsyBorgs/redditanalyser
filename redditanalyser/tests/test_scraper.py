@@ -1,12 +1,9 @@
 import pytest
 import praw
 
-from settings import Config
-from redditanalysis import scraper
-from redditanalysis.models import Submission, Comment
+from redditanalyser import cfg, scraper
+from redditanalyser.models import Submission, Comment
 
-
-cfg = Config()
 
 # setup PRAW
 user_agent = "Reddit analytics scraper by /u/{}".format(cfg.USERNAME)

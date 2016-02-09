@@ -36,45 +36,34 @@ def _model_columns(db_model):
     return [c.name for c in db_model.__table__.columns]
 
 
-def process_redditor(redditor, limit, count_word_freqs, max_threshold):
-    """Parse submissions and comments for the given Redditor.
-
-    :param limit: the maximum number of submissions to scrape from the
-        subreddit
-
-    :param count_word_freqs: if False, only count a word once per text block
-        (title, selftext, comment body) rather than incrementing the total for
-        for each instance.
-
-    :param max_threshold: maximum relative frequency in the text a word can
-        appear to be considered in word counts. prevents word spamming in a
-        single submission.
-
-    """
-    entries = redditor.get_overview(limit=limit)
-    for entry in tqdm(iterable=entries, nested=True):
-        if isinstance(entry, praw.objects.Comment):
-            # parse comment
-            parse_text(
-                text=entry.body,
-                count_word_freqs=count_word_freqs,
-                max_threshold=max_threshold
-                )
-        else:
-            # parse submission
-            parse_submission(
-                submission=entry,
-                count_word_freqs=count_word_freqs,
-                max_threshold=max_threshold,
-                include_comments=False
-                )
-
-
 def process_comments(comments):
     """Inject comments data into the database.
     """
     for c in tqdm(comments, desc="Injecting comments into DB"):
         Comment.create(session, **c)
+
+
+def process_submission(submission):
+    """Injecting submission data into the database.
+    """
+    logger.info(process_submission.__doc__)
+    Submission.create(session, **submission)
+
+
+def process_redditor(redditor, limit):
+    """Process submissions and comments for the given Redditor.
+
+    :param limit: the maximum number of submissions to scrape from the
+        subreddit
+    """
+    entries = redditor.get_overview(limit=limit)
+    for entry in tqdm(iterable=entries, nested=True):
+        if isinstance(entry, praw.objects.Comment):
+            # process comment
+            process_comments([entry])
+        else:
+            # process submission
+            process_submission(entry)
 
 
 def parse_comments(submission):
@@ -106,13 +95,6 @@ def parse_comments(submission):
         comments.append(comment)
 
     return comments
-
-
-def process_submission(submission):
-    """Injecting submission data into the database.
-    """
-    logger.info(process_submission.__doc__)
-    Submission.create(session, **submission)
 
 
 def parse_submission(submission, include_comments=True):

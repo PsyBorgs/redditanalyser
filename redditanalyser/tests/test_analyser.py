@@ -10,39 +10,33 @@ def test_strip_markdown():
     assert analyser.strip_markdown(text_md) == text_expected
 
 
+MOCK_TEXT_1 = (
+    "The seething sea ceaseth and thus the seething sea sufficeth us.")
+MOCK_TEXT_2 = (
+    "She sells sea shells on the sea shore. "
+    "The shells she sells are sea shells, I'm sure. "
+    "For if she sells sea shells on the sea shore "
+    "Then I'm sure she sells sea shore shells."
+    )
+
+
 def test_extract_word_frequencies():
-    text = ("How much wood would a woodchuck chuck if a woodchuck could "
-            "chuck wood?")
     expected = {
-        u'chuck': 2,
-        u'could': 1,
-        u'much': 1,
-        u'wood': 2,
-        u'woodchuck': 2,
-        u'would': 1
+        u'ceaseth': 1,
+        u'sea': 2,
+        u'seething': 2,
+        u'sufficeth': 1,
+        u'thus': 1,
     }
-    assert analyser.extract_word_frequencies(text) == expected
+    assert analyser.extract_word_frequencies(MOCK_TEXT_1) == expected
 
 
 def test_extract_word_frequencies_2():
-    text = (
-        "Betty Botter bought a bit of butter. "
-        "The butter Betty Botter bought was a bit bitter "
-        "And made her batter bitter. "
-        "But a bit of better butter makes better batter. "
-        "So Betty Botter bought a bit of better butter "
-        "Making Betty Botter's bitter batter better")
     expected = {
-        u'batter': 3,
-        u'better': 4,
-        u'betty': 4,
-        u'bit': 4,
-        u'bitter': 3,
-        u'botter': 4,
-        u'bought': 3,
-        u'butter': 4,
-        u'made': 1,
-        u'make': 1,
-        u'making': 1,
+        u'sea': 6,
+        u'sell': 4,
+        u'shell': 5,
+        u'shore': 3,
+        u'sure': 2
     }
-    assert analyser.extract_word_frequencies(text) == expected
+    assert analyser.extract_word_frequencies(MOCK_TEXT_2) == expected

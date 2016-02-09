@@ -6,28 +6,18 @@ import sys
 
 import praw
 from requests.exceptions import HTTPError
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
 
-from settings import Config
-from . import COMMENT_ATTRS
+from . import cfg, COMMENT_ATTRS
 from .models import Submission, Comment
+from .database import create_db_session
 
 
 logging.basicConfig(level="WARN")
 logger = logging.getLogger(__name__)
 
-# project configuration settings
-cfg = Config()
-if not cfg.USERNAME:
-    logger.error("Username in settings must be set. Exiting...")
-    sys.exit()
-
 # setup DB session
-engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
-Session = sessionmaker(bind=engine)
-session = Session()
+session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
 
 
 def _model_columns(db_model):

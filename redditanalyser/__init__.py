@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+from settings import Config
+
+
+# Project configuration settings
+cfg = Config()
+if not cfg.USERNAME:
+    logger.error("Username in settings must be set. Exiting...")
+    sys.exit()
 
 # Attributes of interest for comment objects
 # note: including `author` slows comment requests considerably

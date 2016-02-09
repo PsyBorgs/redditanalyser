@@ -2,8 +2,9 @@
 """Database module, including the SQLAlchemy database object and DB-related
 utilities.
 """
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 import sqlalchemy as sa
 
 
@@ -99,3 +100,14 @@ def ReferenceCol(tablename, nullable=False, pk_name='id', **kwargs):
         nullable=nullable,
         **kwargs
         )
+
+
+def create_db_session(db_uri):
+    """Create a SQLAlchemy database session object.
+
+    :param db_uri: SQLAlchemy database URI
+    """
+    # setup DB session
+    engine = create_engine(db_uri)
+    Session = sessionmaker(bind=engine)
+    return Session()

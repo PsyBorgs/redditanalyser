@@ -25,6 +25,11 @@ def virtualenv():
 def bootstrap():
     """Setup virtual env and python packages.
     """
+    # initialise submodule(s)
+    local("git submodule init")
+    local("git submodule update")
+
+    # setup virtualenv
     local("virtualenv {}".format(ENV_DIR))
 
     # install environment packages

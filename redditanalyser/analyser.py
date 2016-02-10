@@ -137,6 +137,7 @@ def main():
             # descriptive stats
             subreddit_stats = subreddit_desc_stats(submissions)
             subreddit_stats['subreddit_name'] = subreddit_name
+            subreddit_stats['subreddit_id'] = subreddit_id
             desc_stats.append(subreddit_stats)
 
     # Save descriptive statistics to CSV

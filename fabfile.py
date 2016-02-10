@@ -60,6 +60,12 @@ def scrape():
     with virtualenv():
         local("python -m redditanalyser.scraper")
 
+def analyse():
+    """Run Reddit analyser.
+    """
+    with virtualenv():
+        local("python -m redditanalyser.analyser")
+
 
 def test():
     """Run project tests.

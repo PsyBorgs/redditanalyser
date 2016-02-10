@@ -1,12 +1,15 @@
+# -*- coding: utf-8 -*-
 import pytest
 
 from redditanalyser import cfg, analyser
 
 
 def test_strip_markdown():
+    # NOTE: cf. utf-8 emdash
     text_md = ("[Link to the study]"
-               "(http://www.cmaj.ca/content/early/2016/02/08/cmaj.150790)")
-    text_expected = "Link to the study\n"
+               "(http://www.cmaj.ca/content/early/2016/02/08/cmaj.150790) "
+               u"— now")
+    text_expected = u"Link to the study — now\n"
     assert analyser.strip_markdown(text_md) == text_expected
 
 

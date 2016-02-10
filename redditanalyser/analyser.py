@@ -15,7 +15,12 @@ from .database import create_db_session
 def strip_markdown(text):
     """Extract text from a markdown string.
     """
-    soup = BeautifulSoup(markdown(text), "html.parser")
+    html = markdown(text.encode('utf-8'))
+    soup = BeautifulSoup(
+        html,
+        "html.parser",
+        from_encoding='utf8'
+        )
     return "".join(soup.findAll(text=True))
 
 

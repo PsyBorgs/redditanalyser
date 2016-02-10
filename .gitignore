@@ -8,20 +8,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
-develop-eggs/
-dist/
 downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
 var/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -55,3 +43,15 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Data
+*.db
+data/
+build/
+
+# Settings
+settings.py
+
+# R stuff
+.Rproj.user
+*.Rproj

@@ -8,8 +8,6 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
-develop-eggs/
 downloads/
 var/
 
@@ -48,7 +46,8 @@ target/
 
 # Data
 *.db
-data/**/*.csv
+data/
+build/
 
 # Settings
 settings.py

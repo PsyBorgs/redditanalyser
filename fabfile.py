@@ -41,6 +41,16 @@ def bootstrap():
         with lcd(os.path.join(LIB_DIR, 'snudown')):
             local("python setup.py install")
 
+    # setup data and output directories
+    dirs = [
+        os.path.join(BASE_DIR, 'data', 'freq_tables'),
+        os.path.join(BASE_DIR, 'build')
+    ]
+    if sys.platform == 'win32':
+        map(lambda x: local('mkdir {0}'.format(x)), dirs)
+    else:
+        map(lambda x: local('mkdir -p {0}'.format(x)), dirs)
+
 def scrape():
     """Run Reddit scraper.
     """

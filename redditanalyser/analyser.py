@@ -10,7 +10,7 @@ from snudown import markdown
 
 from . import cfg, logger
 from .database import create_db_session
-from .utils import ContractionExpander
+from .utils import ContractionExpander, strip_punct
 
 
 # contraction handling
@@ -41,6 +41,9 @@ def extract_word_frequencies(text, is_markdown=True):
 
     # expand contractions
     text = contraction_expander.replace(text)
+
+    # remove remaining punctuation
+    text = strip_punct(text)
 
     # convert text to lowercase
     text = text.lower()

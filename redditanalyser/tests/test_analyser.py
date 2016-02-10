@@ -39,10 +39,11 @@ def test_extract_word_frequencies_2():
 def test_extract_word_frequencies_3():
     expected = {
         u'believe': 1,
-        u'sea': 1,
+        u'cannot': 2,
         u'really': 1,
+        u'sea': 1,
         u'seller': 1,
-        u'shell': 1,
+        u'shell': 1
     }
     assert analyser.extract_word_frequencies(MOCK_TEXT_3) == expected
 

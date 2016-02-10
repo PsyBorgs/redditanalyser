@@ -9,6 +9,7 @@ A scraper for Reddit communities (or users) with scripts to perform post-scrapin
 - [python 2.7](https://www.python.org/)
 - [virtualenv](https://pypi.python.org/pypi/virtualenv)
 - [fabric](http://fabfile.org/)
+- [R](https://www.r-project.org/)
 
 ### Installation
 
@@ -38,6 +39,14 @@ Note: You *must* set the username before executing the scraper.
 Run the scraper:
 
     $ fab scrape
+
+Run the data analyser:
+
+    $ fab analyse
+
+Generate wordclouds:
+
+    $ Rscript scripts/wordclouds.R
 
 
 ## Testing

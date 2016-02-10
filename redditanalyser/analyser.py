@@ -92,7 +92,27 @@ def subreddit_frequency_csv(submissions, subreddit_id):
         to_csv(csv_path, encoding='utf-8')
 
 
+def subreddit_desc_stats(submissions):
+    """Generate descriptive statistics for a given subreddit. Return dict.
+    """
+    stats = {}
+
+    # number of submissions
+    stats['num_submissions'] = len(submissions)
+
+    # number of comments
+    num_comments = sum([len(s.comments) for s in submissions if s.comments])
+    stats['num_comments'] = num_comments
+
+    # average number of comments per submission
+    comments_per_submission = (float(num_comments) / stats['num_submissions'])
+    stats['comments_per_submission'] = comments_per_submission
+
+    return stats
+
+
 def main():
+    desc_stats = []
     for target in cfg.TARGETS:
         if target.startswith("/r/"):
             subreddit_name = target[3:]
@@ -107,12 +127,22 @@ def main():
                 options(joinedload("comments")).\
                 all()
 
-            print (
-                "Generating frequency table and descriptive statistics "
-                "for {} subreddit..."
-                ).\
-                format(subreddit_name)
+            logger.info("Generating frequency table and descriptive "
+                        "statistics for {} subreddit...".
+                        format(subreddit_name)
+                        )
+            # frequency table
             subreddit_frequency_csv(submissions, subreddit_id)
+
+            # descriptive stats
+            subreddit_stats = subreddit_desc_stats(submissions)
+            subreddit_stats['subreddit_name'] = subreddit_name
+            desc_stats.append(subreddit_stats)
+
+    # Save descriptive statistics to CSV
+    desc_stats_csv = os.path.join(cfg.PROJECT_ROOT, 'data', 'desc_stats.csv')
+    desc_stats_df = pd.DataFrame(desc_stats)
+    desc_stats_df.to_csv(desc_stats_csv, encoding='utf-8')
 
 
 if __name__ == '__main__':

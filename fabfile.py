@@ -54,11 +54,13 @@ def bootstrap():
     else:
         map(lambda x: local('mkdir -p {0}'.format(x)), dirs)
 
+
 def scrape():
     """Run Reddit scraper.
     """
     with virtualenv():
         local("python -m redditanalyser.scraper")
+
 
 def analyse():
     """Run Reddit analyser.

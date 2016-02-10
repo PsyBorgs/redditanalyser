@@ -123,8 +123,8 @@ def main():
 
             # get subreddit submissions
             submissions = session.query(Submission).\
+                options(joinedload(Submission.comments)).\
                 filter_by(subreddit_id=subreddit_id).\
-                options(joinedload("comments")).\
                 all()
 
             logger.info("Generating frequency table and descriptive "

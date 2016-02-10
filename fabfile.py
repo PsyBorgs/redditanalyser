@@ -41,10 +41,13 @@ def bootstrap():
         with lcd(os.path.join(LIB_DIR, 'snudown')):
             local("python setup.py install")
 
+    # install R packages
+    local("Rscript requirements.R")
+
     # setup data and output directories
     dirs = [
         os.path.join(BASE_DIR, 'data', 'freq_tables'),
-        os.path.join(BASE_DIR, 'build')
+        os.path.join(BASE_DIR, 'build', 'wordclouds')
     ]
     if sys.platform == 'win32':
         map(lambda x: local('mkdir {0}'.format(x)), dirs)

@@ -51,3 +51,7 @@ build/
 
 # Settings
 settings.py
+
+# R stuff
+.Rproj.user
+*.Rproj

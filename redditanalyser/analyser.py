@@ -131,7 +131,8 @@ def main():
 
     # Save descriptive statistics to CSV
     desc_stats_csv = os.path.join(cfg.PROJECT_ROOT, 'data', 'desc_stats.csv')
-    desc_stats_df = pd.DataFrame(desc_stats)
+    desc_stats_df = pd.DataFrame(desc_stats).\
+        sort_values(by='comments_per_submission', ascending=False)
     desc_stats_df.to_csv(desc_stats_csv, encoding='utf-8')
 
 

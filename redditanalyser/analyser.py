@@ -73,25 +73,46 @@ def combine_word_frequencies(master_freqs, new_freqs):
     return (Counter(master_freqs) + Counter(new_freqs))
 
 
-def main():
-    # get submissions
-    submissions = session.query(Submission).\
-        options(joinedload("comments")).\
-        all()
-
+def subreddit_frequency_csv(submissions, subreddit_id):
+    """Generate a frequency table CSV given a subreddit name.
+    """
     # generate master word frequency dict from submission comments
-    all_words = Counter()
-    for submission in tqdm(submissions, desc="Submissions"):
+    subreddit_word_freqs = Counter()
+    for submission in tqdm(submissions, desc="Processing submissions"):
         for comment in submission.comments:
-            comment_wfs = extract_word_frequencies(comment.body)
-            all_words.update(comment_wfs)
+            word_freqs = extract_word_frequencies(comment.body)
+            subreddit_word_freqs.update(word_freqs)
 
     # save master word frequency dict to CSV
-    csv_path = os.path.join(cfg.PROJECT_ROOT, 'data', 'all_freqs.csv')
-    all_words_series = pd.Series(all_words)
-    all_words_series.\
+    csv_path = os.path.join(
+        cfg.PROJECT_ROOT, 'data', 'freq_tables', '{}.csv'.format(subreddit_id))
+    subreddit_wf_series = pd.Series(subreddit_word_freqs)
+    subreddit_wf_series.\
         sort_values(ascending=False).\
         to_csv(csv_path, encoding='utf-8')
+
+
+def main():
+    for target in cfg.TARGETS:
+        if target.startswith("/r/"):
+            subreddit_name = target[3:]
+
+            # get subreddit ID
+            subreddit = reddit.get_subreddit(subreddit_name)
+            subreddit_id = subreddit.fullname
+
+            # get subreddit submissions
+            submissions = session.query(Submission).\
+                filter_by(subreddit_id=subreddit_id).\
+                options(joinedload("comments")).\
+                all()
+
+            print (
+                "Generating frequency table and descriptive statistics "
+                "for {} subreddit..."
+                ).\
+                format(subreddit_name)
+            subreddit_frequency_csv(submissions, subreddit_id)
 
 
 if __name__ == '__main__':

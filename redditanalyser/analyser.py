@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
@@ -45,6 +45,17 @@ def extract_word_frequencies(text, is_markdown=True):
             word_freqs[token] += 1
 
     return word_freqs
+
+
+def combine_word_frequencies(master_freqs, new_freqs):
+    """Combine a new list of word frequencies to a master list.
+    Return master dict.
+
+    :param master_freqs: Master list of word frequencies
+
+    :param new_freqs: New list of word frequencies to be added to master list
+    """
+    return (Counter(master_freqs) + Counter(new_freqs))
 
 
 def main():

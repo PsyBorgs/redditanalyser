@@ -43,3 +43,20 @@ def test_extract_word_frequencies_2():
         u'sure': 2
     }
     assert analyser.extract_word_frequencies(MOCK_TEXT_2) == expected
+
+
+def test_combine_word_frequencies():
+    master = analyser.extract_word_frequencies(MOCK_TEXT_1)
+    new = analyser.extract_word_frequencies(MOCK_TEXT_2)
+    expected = {
+        u'ceaseth': 1,
+        u'sea': 8,
+        u'seething': 2,
+        u'sell': 4,
+        u'shell': 5,
+        u'shore': 3,
+        u'sure': 2,
+        u'sufficeth': 1,
+        u'thus': 1,
+    }
+    assert analyser.combine_word_frequencies(master, new) == expected

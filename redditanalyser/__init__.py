@@ -4,6 +4,7 @@ import logging
 import praw
 
 from settings import Config
+from .database import create_db_session
 
 
 logging.basicConfig(level="WARN")
@@ -14,6 +15,9 @@ cfg = Config()
 if not cfg.USERNAME:
     logger.error("Username in settings must be set. Exiting...")
     sys.exit()
+
+# setup DB session
+session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
 
 # setup PRAW handler
 handler = None

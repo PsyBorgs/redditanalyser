@@ -7,13 +7,8 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS, logger, reddit
+from . import cfg, COMMENT_ATTRS, logger, reddit, session
 from .models import Submission, Comment
-from .database import create_db_session
-
-
-# setup DB session
-session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
 
 
 def _model_columns(db_model):

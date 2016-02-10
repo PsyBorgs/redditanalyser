@@ -12,8 +12,7 @@ from snudown import markdown
 from sqlalchemy.orm import joinedload
 from tqdm import tqdm
 
-from . import cfg, logger, reddit
-from .database import create_db_session
+from . import cfg, logger, reddit, session
 from .models import Submission
 from .utils import ContractionExpander, strip_punct
 
@@ -75,9 +74,6 @@ def combine_word_frequencies(master_freqs, new_freqs):
 
 
 def main():
-    # setup DB session
-    session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
-
     # get submissions
     submissions = session.query(Submission).\
         options(joinedload("comments")).\

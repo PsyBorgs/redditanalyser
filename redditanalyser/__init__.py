@@ -7,7 +7,7 @@ from settings import Config
 from .database import create_db_session
 
 
-logging.basicConfig(level="WARN")
+logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
 
 # Project configuration settings

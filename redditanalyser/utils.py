@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+from string import punctuation
 
 
 CONTRACTION_PATTERNS = [
@@ -23,7 +24,10 @@ class ContractionExpander(object):
             (re.compile(regex), repl) for (regex, repl) in patterns]
 
     def replace(self, text):
-        new_text = text
         for (regex, repl) in self.patterns:
-            (new_text, count) = re.subn(regex, repl, new_text)
-            return new_text
+            text = regex.sub(repl, text)
+        return text
+
+
+def strip_punct(text):
+    return u''.join([c for c in text if c not in punctuation])

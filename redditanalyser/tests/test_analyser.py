@@ -2,6 +2,7 @@
 import pytest
 
 from redditanalyser import cfg, analyser
+from redditanalyser.tests import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
 
 
 def test_strip_markdown():
@@ -11,16 +12,6 @@ def test_strip_markdown():
                u"— now")
     text_expected = u"Link to the study — now\n"
     assert analyser.strip_markdown(text_md) == text_expected
-
-
-MOCK_TEXT_1 = (
-    "The seething sea ceaseth and thus the seething sea sufficeth us.")
-MOCK_TEXT_2 = (
-    "She sells sea shells on the sea shore. "
-    "The shells she sells are sea shells, I'm sure. "
-    "For if she sells sea shells on the sea shore "
-    "Then I'm sure she sells sea shore shells."
-    )
 
 
 def test_extract_word_frequencies():
@@ -43,6 +34,17 @@ def test_extract_word_frequencies_2():
         u'sure': 2
     }
     assert analyser.extract_word_frequencies(MOCK_TEXT_2) == expected
+
+
+def test_extract_word_frequencies_3():
+    expected = {
+        u'believe': 1,
+        u'sea': 1,
+        u'really': 1,
+        u'seller': 1,
+        u'shell': 1,
+    }
+    assert analyser.extract_word_frequencies(MOCK_TEXT_3) == expected
 
 
 def test_combine_word_frequencies():

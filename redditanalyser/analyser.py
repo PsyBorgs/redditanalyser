@@ -91,10 +91,11 @@ def main():
             all_words.update(comment_wfs)
 
     # save master word frequency dict to CSV
+    csv_path = os.path.join(cfg.PROJECT_ROOT, 'data', 'all_freqs.csv')
     all_words_series = pd.Series(all_words)
     all_words_series.\
         sort_values(ascending=False).\
-        to_csv(os.path.join(cfg.PROJECT_ROOT, 'data', 'all_freqs.csv'))
+        to_csv(csv_path, encoding='utf-8')
 
 
 if __name__ == '__main__':

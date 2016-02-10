@@ -15,17 +15,6 @@ A scraper for Reddit communities (or users) with scripts to perform post-scrapin
 
 Clone the repository, then bootstrap the environment:
 
-    $ virtualenv env
-
-This sets up the virtual environment in the repo directory and installs the required Python packages.
-
-Activate the virtual environment:
-
-    $ source env/bin/activate (on Linux or Mac)
-    $ env/Scripts/activate.exe (on Windows)
-
-Install requisite Python packages:
-
     $ fab bootstrap
 
 ### Configuration

@@ -5,11 +5,16 @@ from collections import defaultdict, Counter
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import wordpunct_tokenize
 from snudown import markdown
 
 from . import cfg, logger
 from .database import create_db_session
+from .utils import ContractionExpander
+
+
+# contraction handling
+contraction_expander = ContractionExpander()
 
 
 def strip_markdown(text):
@@ -34,10 +39,13 @@ def extract_word_frequencies(text, is_markdown=True):
     if is_markdown:
         text = strip_markdown(text)
 
+    # expand contractions
+    text = contraction_expander.replace(text)
+
     # convert text to lowercase
     text = text.lower()
 
-    for token in word_tokenize(text):
+    for token in wordpunct_tokenize(text):
         # stem token
         token = WordNetLemmatizer().lemmatize(token)
 

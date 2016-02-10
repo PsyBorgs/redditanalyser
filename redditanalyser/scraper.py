@@ -7,7 +7,7 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS, logger
+from . import cfg, COMMENT_ATTRS, logger, reddit
 from .models import Submission, Comment
 from .database import create_db_session
 
@@ -149,17 +149,6 @@ def process_subreddit(subreddit, period, limit, cached_ids=None):
 
 
 def main():
-    # setup PRAW handler
-    handler = None
-    if cfg.MULTIPROCESS:
-        handler = praw.handlers.MultiprocessHandler()
-
-    # open connection to Reddit
-    user_agent = "Reddit analytics scraper by /u/{}".format(cfg.USERNAME)
-
-    r = praw.Reddit(user_agent=user_agent, handler=handler)
-    r.config.decode_html_entities = True
-
     # get a list of cached submission IDs
     cached_submissions = session.query(Submission).all()
     cached_ids = [s.id for s in cached_submissions]
@@ -169,7 +158,7 @@ def main():
         if target.startswith("/r/"):
             subreddit = target[3:]
             process_subreddit(
-                subreddit=r.get_subreddit(subreddit),
+                subreddit=reddit.get_subreddit(subreddit),
                 period=cfg.PERIOD,
                 limit=cfg.LIMIT,
                 cached_ids=cached_ids
@@ -177,7 +166,7 @@ def main():
         elif target.startswith("/u/"):
             redditor = target[3:]
             process_redditor(
-                redditor=r.get_redditor(redditor),
+                redditor=reddit.get_redditor(redditor),
                 limit=cfg.LIMIT
                 )
         else:

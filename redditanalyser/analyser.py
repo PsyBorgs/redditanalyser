@@ -12,7 +12,7 @@ from snudown import markdown
 from sqlalchemy.orm import joinedload
 from tqdm import tqdm
 
-from . import cfg, logger
+from . import cfg, logger, reddit
 from .database import create_db_session
 from .models import Submission
 from .utils import ContractionExpander, strip_punct

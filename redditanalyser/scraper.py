@@ -27,7 +27,7 @@ def process_comments(comments):
 def process_submission(submission):
     """Injecting submission data into the database.
     """
-    logger.info(process_submission.__doc__)
+    logger.debug(process_submission.__doc__)
     Submission.create(session, **submission)
 
 

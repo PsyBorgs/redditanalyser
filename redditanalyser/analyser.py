@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os.path
 from collections import defaultdict, Counter
 
+import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import wordpunct_tokenize
 from snudown import markdown
+from sqlalchemy.orm import joinedload
+from tqdm import tqdm
 
 from . import cfg, logger
 from .database import create_db_session
+from .models import Submission
 from .utils import ContractionExpander, strip_punct
 
 
@@ -70,7 +75,27 @@ def combine_word_frequencies(master_freqs, new_freqs):
 
 
 def main():
-    pass
+    # setup DB session
+    session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
+
+    # get submissions
+    submissions = session.query(Submission).\
+        options(joinedload("comments")).\
+        all()
+
+    # generate master word frequency dict from submission comments
+    all_words = Counter()
+    for submission in tqdm(submissions, desc="Submissions"):
+        for comment in submission.comments:
+            comment_wfs = extract_word_frequencies(comment.body)
+            all_words.update(comment_wfs)
+
+    # save master word frequency dict to CSV
+    all_words_series = pd.Series(all_words)
+    all_words_series.\
+        sort_values(ascending=False).\
+        to_csv(os.path.join(cfg.PROJECT_ROOT, 'data', 'all_freqs.csv'))
+
 
 if __name__ == '__main__':
     main()

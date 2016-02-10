@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
 import os
 import sys
 
@@ -8,13 +7,10 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS
+from . import cfg, COMMENT_ATTRS, logger
 from .models import Submission, Comment
 from .database import create_db_session
 
-
-logging.basicConfig(level="WARN")
-logger = logging.getLogger(__name__)
 
 # setup DB session
 session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)

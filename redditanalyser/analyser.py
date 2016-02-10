@@ -8,7 +8,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from snudown import markdown
 
-from . import cfg
+from . import cfg, logger
 from .database import create_db_session
 
 

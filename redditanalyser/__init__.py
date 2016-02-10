@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from settings import Config
 
+
+logging.basicConfig(level="WARN")
+logger = logging.getLogger(__name__)
 
 # Project configuration settings
 cfg = Config()

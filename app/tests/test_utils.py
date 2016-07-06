@@ -2,7 +2,7 @@
 import pytest
 
 from app import utils
-from app.tests import MOCK_TEXT_3
+from app.tests.const import MOCK_TEXT_3
 
 
 def test_contraction_expander():

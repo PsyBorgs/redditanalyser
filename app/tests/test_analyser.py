@@ -2,7 +2,7 @@
 import pytest
 
 from app import analyser
-from app.tests import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
+from app.tests.const import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
 
 
 def test_strip_markdown():

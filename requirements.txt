@@ -1,5 +1,5 @@
 # Web
-praw==3.3.0
+praw==3.5.0
 requests>=2.9.1
 
 # Misc

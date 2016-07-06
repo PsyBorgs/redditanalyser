@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from redditanalyser import cfg, analyser
+from redditanalyser import analyser
 from redditanalyser.tests import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
 
 

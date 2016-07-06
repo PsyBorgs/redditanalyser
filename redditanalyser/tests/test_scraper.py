@@ -1,13 +1,8 @@
 import pytest
 import praw
 
-from redditanalyser import cfg, scraper
+from redditanalyser import reddit, scraper
 from redditanalyser.models import Submission, Comment
-
-
-# setup PRAW
-user_agent = "Reddit analytics scraper by /u/{}".format(cfg.USERNAME)
-reddit = praw.Reddit(user_agent=user_agent)
 
 
 def test_parse_submission_2lyq0v():

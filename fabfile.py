@@ -54,6 +54,9 @@ def bootstrap():
     else:
         map(lambda x: local('mkdir -p {0}'.format(x)), dirs)
 
+    # initialise the database
+    local("alembic upgrade head")
+
 
 def scrape():
     """Run Reddit scraper.

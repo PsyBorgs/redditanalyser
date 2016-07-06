@@ -27,6 +27,7 @@ def test_parse_submission_2lyq0v():
         ('title', 'How to become a data scientist in 8 easy steps '
                   '[Infographic]'),
         ('selftext', ''),
+        ('archived', True),
     ]
     for k, v in expected_values:
         assert si[k] == v
@@ -35,7 +36,7 @@ def test_parse_submission_2lyq0v():
     expected_scores = [
         ('ups', 60),
         ('downs', 0),
-        ('score', 60),
+        ('score', 50),
         ('num_comments', 26)
     ]
     for k, v in expected_scores:
@@ -124,3 +125,7 @@ def test_parse_comments_2zxglv():
     sc = scraper.parse_comments(submission)
 
     _comments_for_2zxglv(sc, submission_id=submission_id)
+
+
+def test_submission_2lyq0v_db_data():
+    pass

@@ -4,7 +4,8 @@ import pytest
 from alembic.command import upgrade
 from alembic.config import Config
 
-from app.database import sa, create_engine, create_db_session
+from app.database import db as _db
+from app.database import create_engine, create_db_session
 from app.models import Base
 
 
@@ -24,22 +25,22 @@ def apply_migrations(engine):
 
 
 @pytest.fixture(scope='session')
-def engine(request):
+def db(request):
     """Session-wide test database."""
     # create a SQLite DB in memory
-    _engine = create_engine("sqlite://")
+    _db.engine = create_engine("sqlite://")
 
     # setup models in DB
-    Base.metadata.create_all(_engine)
+    Base.metadata.create_all(_db.engine)
 
-    return _engine
+    return _db
 
 
 @pytest.fixture(scope='function')
-def session(engine, request):
+def session(db, request):
     """Creates a new database session for a test."""
-    _session = create_db_session(engine)
-    connection = engine.connect()
+    _session = create_db_session(db.engine)
+    connection = db.engine.connect()
     transaction = connection.begin()
 
     def fin():

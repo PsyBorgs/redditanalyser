@@ -124,6 +124,7 @@ def test_parse_submission_2zxglv():
         ('author', 'teh_shit'),
         ('title', 'Best way to download comments from a subreddit, given a '
                   'time interval?'),
+        ('archived', True),
     ]
     for k, v in expected_values:
         assert si[k] == v

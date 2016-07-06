@@ -5,14 +5,20 @@ from app import reddit, scraper
 from app.models import Submission, Comment
 
 
+def get_and_parse_reddit_submission(submission_id):
+    reddit_submission = reddit.get_submission(submission_id=submission_id)
+
+    info, comments = scraper.parse_submission(reddit_submission, Submission)
+
+    return dict(info=info, comments=comments)
+
+
 def test_parse_submission_2lyq0v():
     submission_id = "2lyq0v"
-    submission = reddit.get_submission(submission_id=submission_id)
+    sub = get_and_parse_reddit_submission(submission_id)
+    si = sub['info']
 
-    # si = submission info; sc = submission comments
-    si, sc = scraper.parse_submission(submission, Submission)
-
-    # matchup with DB model schema
+    # matchup returned objects with DB model schema
     assert sorted(si.keys()) == sorted(scraper._model_columns(Submission))
 
     # individual values
@@ -43,17 +49,14 @@ def test_parse_submission_2lyq0v():
         assert si[k] >= v
 
     # has comments?
-    assert sc
+    assert sub['comments']
 
 
 def test_process_submission_2lyq0v(session):
     submission_id = "2lyq0v"
-    reddit_submission = reddit.get_submission(submission_id=submission_id)
+    sub = get_and_parse_reddit_submission(submission_id)
 
-    submission, comments = scraper.parse_submission(
-        reddit_submission, Submission)
-
-    scraper.process_submission(session, submission)
+    scraper.process_submission(session, sub['info'])
 
     db_submissions = session.query(Submission).all()
 

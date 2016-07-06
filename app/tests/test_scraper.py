@@ -34,7 +34,7 @@ def test_parse_submission_2lyq0v():
 
     # scores
     expected_scores = [
-        ('ups', 60),
+        ('ups', 50),
         ('downs', 0),
         ('score', 50),
         ('num_comments', 26)
@@ -42,8 +42,28 @@ def test_parse_submission_2lyq0v():
     for k, v in expected_scores:
         assert si[k] >= v
 
-    # comments
+    # has comments?
     assert sc
+
+
+def test_process_submission_2lyq0v(session):
+    submission_id = "2lyq0v"
+    reddit_submission = reddit.get_submission(submission_id=submission_id)
+
+    submission, comments = scraper.parse_submission(
+        reddit_submission, Submission)
+
+    scraper.process_submission(session, submission)
+
+    db_submissions = session.query(Submission).all()
+
+    assert len(db_submissions) == 1
+
+    ds_2lyq0v = db_submissions[0]
+    assert ds_2lyq0v.id == submission_id
+    assert ds_2lyq0v.archived
+    assert ds_2lyq0v.title == (
+        'How to become a data scientist in 8 easy steps [Infographic]')
 
 
 def _comments_for_2zxglv(sc, submission_id):
@@ -125,7 +145,3 @@ def test_parse_comments_2zxglv():
     sc = scraper.parse_comments(submission)
 
     _comments_for_2zxglv(sc, submission_id=submission_id)
-
-
-def test_submission_2lyq0v_db_data():
-    pass

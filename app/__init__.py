@@ -4,7 +4,7 @@ import logging
 import praw
 
 from settings import Config
-from .database import create_db_session
+from .database import create_engine, create_db_session
 
 
 logging.basicConfig(level="WARNING")
@@ -17,7 +17,8 @@ if not cfg.USERNAME:
     sys.exit()
 
 # setup DB session
-session = create_db_session(cfg.SQLALCHEMY_DATABASE_URI)
+engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
+session = create_db_session(engine)
 
 # setup PRAW handler
 handler = None

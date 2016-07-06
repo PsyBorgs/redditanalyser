@@ -7,7 +7,7 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS, logger, reddit, session
+from . import cfg, logger, reddit, session
 from .models import Submission, Comment
 
 

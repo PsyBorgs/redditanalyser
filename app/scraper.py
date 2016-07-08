@@ -17,23 +17,31 @@ def _model_columns(db_model):
     return [c.name for c in db_model.__table__.columns]
 
 
-def process_comments(session, comments, recache=False):
+def process_comments(session, comments):
     """Inject comments data into the database.
+
+    :param session: database session object
+
+    :param comments: list of PRAW comment objects
     """
     for c in tqdm(comments, desc="Injecting comments into DB"):
         db_comment = session.query(Comment).get(c['id'])
-        if db_comment and recache:
+        if db_comment:
             db_comment.update(session, **c)
         else:
             Comment.create(session, **c)
 
 
-def process_submission(session, submission, recache=False):
+def process_submission(session, submission):
     """Inject submission data into the database.
+
+    :param session: database session object
+
+    :param submission: PRAW submission object
     """
     logger.debug(process_submission.__doc__)
-    if recache:
-        db_submission = session.query(Submission).get(submission['id'])
+    db_submission = session.query(Submission).get(submission['id'])
+    if db_submission:
         db_submission.update(session, **submission)
     else:
         Submission.create(session, **submission)
@@ -41,6 +49,10 @@ def process_submission(session, submission, recache=False):
 
 def process_redditor(session, redditor, limit):
     """Process submissions and comments for the given Redditor.
+
+    :param session: database session object
+
+    :param redditor: PRAW redditor object
 
     :param limit: the maximum number of submissions to scrape from the
         subreddit
@@ -59,7 +71,7 @@ def parse_comments(submission):
     """Parse a submission's comments according to the structure of the
     database model schema.
 
-    :param submission_id: the source submission's id
+    :param submission: PRAW submission object
 
     :return: a list of Submission comment dicts.
     """
@@ -90,6 +102,8 @@ def parse_submission(submission, include_comments=True):
     """Parse a submission's text and body (if applicable) according to the
     structure of the database model schema.
 
+    :param submission: PRAW submission object
+
     :param include_comments: include the submission's comments when True
 
     :return: Submission info and comments (if applicable).
@@ -115,14 +129,22 @@ def parse_submission(submission, include_comments=True):
     return info, comments
 
 
-def process_subreddit(session, subreddit, period, limit, cached_ids=[]):
+def process_subreddit(session, subreddit, period, limit, cached_ids=[],
+                      recache=False):
     """Parse comments, title text, and selftext in a given subreddit.
+
+    :param subreddit: PRAW subreddit object
 
     :param period: the time period to scrape the subreddit over (day, week,
     month, etc.)
 
     :param limit: the maximum number of submissions to scrape from the
     subreddit
+
+    :param cached_ids: list of ids that have already been cached in the DB
+
+    :param recache: whether data should be re-cached (does not re-cache
+    archived submissions; boolean)
     """
     # set submission query params
     params = {
@@ -134,12 +156,13 @@ def process_subreddit(session, subreddit, period, limit, cached_ids=[]):
     submissions = subreddit.get_new(limit=limit, params=params)
     for s in tqdm(submissions, desc="Submissions", nested=True):
         not_cached = (s.id not in cached_ids)
-        should_be_recached = (s.id in cached_ids and not s.archived)
+        should_be_recached = (recache and s.id in cached_ids and
+                              not s.archived)
         if not_cached or should_be_recached:
             try:
                 submission, comments = parse_submission(s)
-                process_comments(session, comments, should_be_recached)
-                process_submission(session, submission, should_be_recached)
+                process_submission(session, submission)
+                process_comments(session, comments)
             except HTTPError as exc:
                 logger.error(
                     "Skipping submission {0} due to HTTP status {1} error. "

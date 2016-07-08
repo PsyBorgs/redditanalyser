@@ -153,7 +153,7 @@ def process_subreddit(session, subreddit, period, limit, cached_ids=[]):
                         submission.permalink.encode("UTF-8")))
 
 
-def main():
+def main(args):
     # get a list of cached submission IDs
     cached_submissions = session.query(Submission).all()
     cached_ids = [s.id for s in cached_submissions]
@@ -167,7 +167,8 @@ def main():
                 subreddit=reddit.get_subreddit(subreddit),
                 period=cfg.PERIOD,
                 limit=cfg.LIMIT,
-                cached_ids=cached_ids
+                cached_ids=cached_ids,
+                recache=args.recache
                 )
         elif target.startswith("/u/"):
             redditor = target[3:]
@@ -182,4 +183,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Scrape targeted Reddit data.')
+    parser.add_argument('--recache', action='store_true',
+                        help='Re-cache Reddit data')
+    args = parser.parse_args()
+
+    main(args)

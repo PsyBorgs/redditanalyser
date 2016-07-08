@@ -120,10 +120,10 @@ def main():
                         "statistics for {} subreddit...".
                         format(subreddit_name)
                         )
-            # frequency table
+            # generate frequency table
             subreddit_frequency_csv(submissions, subreddit_id)
 
-            # descriptive stats
+            # append descriptive stats to list
             subreddit_stats = subreddit_desc_stats(submissions)
             subreddit_stats['subreddit_name'] = subreddit_name
             subreddit_stats['subreddit_id'] = subreddit_id

@@ -17,18 +17,26 @@ def _model_columns(db_model):
     return [c.name for c in db_model.__table__.columns]
 
 
-def process_comments(session, comments):
+def process_comments(session, comments, recache=False):
     """Inject comments data into the database.
     """
     for c in tqdm(comments, desc="Injecting comments into DB"):
-        Comment.create(session, **c)
+        db_comment = session.query(Comment).get(c['id'])
+        if db_comment and recache:
+            db_comment.update(session, **c)
+        else:
+            Comment.create(session, **c)
 
 
-def process_submission(session, submission):
+def process_submission(session, submission, recache=False):
     """Inject submission data into the database.
     """
     logger.debug(process_submission.__doc__)
-    Submission.create(session, **submission)
+    if recache:
+        db_submission = session.query(Submission).get(submission['id'])
+        db_submission.update(session, **submission)
+    else:
+        Submission.create(session, **submission)
 
 
 def process_redditor(session, redditor, limit):
@@ -107,7 +115,7 @@ def parse_submission(submission, include_comments=True):
     return info, comments
 
 
-def process_subreddit(session, subreddit, period, limit, cached_ids=None):
+def process_subreddit(session, subreddit, period, limit, cached_ids=[]):
     """Parse comments, title text, and selftext in a given subreddit.
 
     :param period: the time period to scrape the subreddit over (day, week,
@@ -125,11 +133,13 @@ def process_subreddit(session, subreddit, period, limit, cached_ids=None):
     # process submissions
     submissions = subreddit.get_new(limit=limit, params=params)
     for s in tqdm(submissions, desc="Submissions", nested=True):
-        if cached_ids is not None and s.id not in cached_ids:
+        not_cached = (s.id not in cached_ids)
+        should_be_recached = (s.id in cached_ids and not s.archived)
+        if not_cached or should_be_recached:
             try:
                 submission, comments = parse_submission(s)
-                process_comments(session, comments)
-                process_submission(session, submission)
+                process_comments(session, comments, should_be_recached)
+                process_submission(session, submission, should_be_recached)
             except HTTPError as exc:
                 logger.error(
                     "Skipping submission {0} due to HTTP status {1} error. "

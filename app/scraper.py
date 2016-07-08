@@ -7,7 +7,7 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS, logger, reddit, session
+from . import cfg, logger, reddit, session
 from .models import Submission, Comment
 
 
@@ -17,21 +17,21 @@ def _model_columns(db_model):
     return [c.name for c in db_model.__table__.columns]
 
 
-def process_comments(comments):
+def process_comments(session, comments):
     """Inject comments data into the database.
     """
     for c in tqdm(comments, desc="Injecting comments into DB"):
         Comment.create(session, **c)
 
 
-def process_submission(submission):
+def process_submission(session, submission):
     """Inject submission data into the database.
     """
     logger.debug(process_submission.__doc__)
     Submission.create(session, **submission)
 
 
-def process_redditor(redditor, limit):
+def process_redditor(session, redditor, limit):
     """Process submissions and comments for the given Redditor.
 
     :param limit: the maximum number of submissions to scrape from the
@@ -41,10 +41,10 @@ def process_redditor(redditor, limit):
     for entry in tqdm(iterable=entries, nested=True):
         if isinstance(entry, praw.objects.Comment):
             # process comment
-            process_comments([entry])
+            process_comments(session, [entry])
         else:
             # process submission
-            process_submission(entry)
+            process_submission(session, entry)
 
 
 def parse_comments(submission):
@@ -107,7 +107,7 @@ def parse_submission(submission, include_comments=True):
     return info, comments
 
 
-def process_subreddit(subreddit, period, limit, cached_ids=None):
+def process_subreddit(session, subreddit, period, limit, cached_ids=None):
     """Parse comments, title text, and selftext in a given subreddit.
 
     :param period: the time period to scrape the subreddit over (day, week,
@@ -128,8 +128,8 @@ def process_subreddit(subreddit, period, limit, cached_ids=None):
         if cached_ids is not None and s.id not in cached_ids:
             try:
                 submission, comments = parse_submission(s)
-                process_comments(comments)
-                process_submission(submission)
+                process_comments(session, comments)
+                process_submission(session, submission)
             except HTTPError as exc:
                 logger.error(
                     "Skipping submission {0} due to HTTP status {1} error. "
@@ -141,6 +141,9 @@ def process_subreddit(subreddit, period, limit, cached_ids=None):
                 logger.error(
                     "Skipping submission {0} due to ValueError.".format(
                         submission.permalink.encode("UTF-8")))
+        else:
+            # Stop scraping when encountering first cached submission ID
+            break
 
 
 def main():
@@ -153,6 +156,7 @@ def main():
         if target.startswith("/r/"):
             subreddit = target[3:]
             process_subreddit(
+                session=session,
                 subreddit=reddit.get_subreddit(subreddit),
                 period=cfg.PERIOD,
                 limit=cfg.LIMIT,
@@ -161,6 +165,7 @@ def main():
         elif target.startswith("/u/"):
             redditor = target[3:]
             process_redditor(
+                session=session,
                 redditor=reddit.get_redditor(redditor),
                 limit=cfg.LIMIT
                 )

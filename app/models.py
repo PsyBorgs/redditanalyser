@@ -28,6 +28,8 @@ class Submission(Model):
     score = Column(db.Integer, nullable=False)
     num_comments = Column(db.Integer, nullable=False)
 
+    archived = Column(db.Boolean, nullable=False)
+
 
 class Comment(Model):
     __tablename__ = 'comments'

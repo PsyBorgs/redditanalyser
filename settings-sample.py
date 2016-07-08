@@ -9,7 +9,7 @@ class Config(object):
     """
     # Project paths
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))  # This directory
-    APP_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, 'redditanalyser'))
+    APP_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, 'app'))
     DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 
     # Your Reddit username for the bot.

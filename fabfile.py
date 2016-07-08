@@ -54,23 +54,26 @@ def bootstrap():
     else:
         map(lambda x: local('mkdir -p {0}'.format(x)), dirs)
 
+    # initialise the database
+    local("alembic upgrade head")
+
 
 def scrape():
     """Run Reddit scraper.
     """
     with virtualenv():
-        local("python -m redditanalyser.scraper")
+        local("python -m app.scraper")
 
 
 def analyse():
     """Run Reddit analyser.
     """
     with virtualenv():
-        local("python -m redditanalyser.analyser")
+        local("python -m app.analyser")
 
 
 def test():
     """Run project tests.
     """
     with virtualenv():
-        local("py.test redditanalyser")
+        local("py.test app")

@@ -141,6 +141,9 @@ def process_subreddit(session, subreddit, period, limit, cached_ids=None):
                 logger.error(
                     "Skipping submission {0} due to ValueError.".format(
                         submission.permalink.encode("UTF-8")))
+        else:
+            # Stop scraping when encountering first cached submission ID
+            break
 
 
 def main():

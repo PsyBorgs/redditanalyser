@@ -57,6 +57,9 @@ def bootstrap():
     # initialise the database
     local("alembic upgrade head")
 
+    # download and cache NLTK corpora
+    local("python -m textblob.download_corpora")
+
 
 def scrape():
     """Run Reddit scraper.

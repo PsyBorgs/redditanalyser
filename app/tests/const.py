@@ -28,7 +28,7 @@ MOCK_SUBMISSION = {
     'id': u'aaaaaa'
 }
 MOCK_COMMENT = {
-    'body': u'Comment body.',
+    'body': u'This is an amazing comment. This app has excellent features!',
     'submission_id': u'aaaaaa',
     'name': u't1_bbbbbb',
     'author': u'fakeuser1',

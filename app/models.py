@@ -30,6 +30,8 @@ class Submission(Model):
 
     archived = Column(db.Boolean, nullable=False)
 
+    comments = relationship('Comment', backref='submission')
+
 
 class Comment(Model):
     __tablename__ = 'comments'
@@ -41,7 +43,6 @@ class Comment(Model):
     name = Column(db.String, nullable=False)
 
     submission_id = ReferenceCol('submissions')
-    submission = relationship('Submission', backref='comments')
 
     author = Column(db.String)
     body = Column(db.UnicodeText, nullable=False)
@@ -50,12 +51,14 @@ class Comment(Model):
     downs = Column(db.Integer, nullable=False)
     score = Column(db.Integer, nullable=False)
 
+    sentiment = relationship(
+        'CommentSentiment', backref='comment', uselist=False)
 
-class CommentSentiment(Model):
+
+class CommentSentiment(Model, SurrogatePK):
     __tablename__ = 'comment_sentiments'
 
     comment_id = ReferenceCol('comments')
-    comment = relationship('Comment', backref='sentiment', uselist=False)
 
     polarity = Column(db.Float)
     subjectivity = Column(db.Float)

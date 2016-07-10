@@ -1,6 +1,7 @@
 import pytest
+from textblob import TextBlob
 
-from app.models import Submission, Comment
+from app.models import Submission, Comment, CommentSentiment
 from app.tests.const import MOCK_SUBMISSION, MOCK_COMMENT
 
 
@@ -29,3 +30,27 @@ def test_comment_model(session):
     db_c = db_comments[0]
     for k in MOCK_COMMENT.keys():
         assert getattr(db_c, k) == MOCK_COMMENT[k]
+
+    # test relationship
+    assert s.comments == db_comments
+
+
+def test_commentsentiment_model(session):
+    s = Submission.create(session, **MOCK_SUBMISSION)
+    c = Comment.create(session, **MOCK_COMMENT)
+
+    comment_blob = TextBlob(c.body)
+    comment_sentiment = {
+        'comment_id': c.id,
+        'polarity': comment_blob.sentiment.polarity,
+        'subjectivity': comment_blob.sentiment.subjectivity
+    }
+
+    cs = CommentSentiment.create(session, **comment_sentiment)
+
+    assert cs.id == 1
+    for k in comment_sentiment.keys():
+        assert getattr(cs, k) == comment_sentiment[k]
+
+    # test relationship
+    assert c.sentiment == cs

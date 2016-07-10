@@ -1,25 +1,7 @@
 import pytest
 
 from app.models import Submission, Comment
-
-
-MOCK_SUBMISSION = {
-    'permalink': (u'https://www.reddit.com/r/fake/comments'
-                  u'/000000/submission_title/'
-                  ),
-    'score': 100,
-    'author': u'fakeuser1',
-    'num_comments': 500,
-    'downs': 0,
-    'title': u'Submission title',
-    'created_utc': 1415713246.0,
-    'subreddit_id': u't5_000000',
-    'ups': 100,
-    'selftext': u'',
-    'fullname': u't3_aaaaaa',
-    'archived': True,
-    'id': u'aaaaaa'
-}
+from app.tests.const import MOCK_SUBMISSION, MOCK_COMMENT
 
 
 def test_submission_model(session):
@@ -32,3 +14,17 @@ def test_submission_model(session):
     db_s = db_submissions[0]
     for k in MOCK_SUBMISSION.keys():
         assert getattr(db_s, k) == MOCK_SUBMISSION[k]
+
+
+def test_comment_model(session):
+    c = Comment.create(session, **MOCK_COMMENT)
+
+    db_submissions = session.query(Submission).all()
+    db_comments = session.query(Comment).all()
+
+    assert db_submissions[0].comments[0] == c
+    assert len(db_comments) == 1
+
+    db_c = db_comments[0]
+    for k in MOCK_COMMENT.keys():
+        assert getattr(db_c, k) == MOCK_COMMENT[k]

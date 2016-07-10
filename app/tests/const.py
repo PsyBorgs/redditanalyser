@@ -9,3 +9,33 @@ MOCK_TEXT_2 = (
     )
 MOCK_TEXT_3 = ("I can't believe that she was a sea shell seller! "
                u"—— I really can't! !!!!! ")
+
+MOCK_SUBMISSION = {
+    'permalink': (u'https://www.reddit.com/r/fake/comments'
+                  u'/000000/submission_title/'
+                  ),
+    'score': 100,
+    'author': u'fakeuser1',
+    'num_comments': 500,
+    'downs': 0,
+    'title': u'Submission title',
+    'created_utc': 1415713246.0,
+    'subreddit_id': u't5_000000',
+    'ups': 100,
+    'selftext': u'',
+    'fullname': u't3_aaaaaa',
+    'archived': True,
+    'id': u'aaaaaa'
+}
+MOCK_COMMENT = {
+    'body': u'Comment body.',
+    'submission_id': u'aaaaaa',
+    'name': u't1_bbbbbb',
+    'author': u'fakeuser1',
+    'downs': 0,
+    'created_utc': 1427062942.0,
+    'ups': 2,
+    'parent_id': u't3_aaaaaa',
+    'score': 2,
+    'id': u'bbbbbb'
+}

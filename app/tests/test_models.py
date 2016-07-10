@@ -5,7 +5,7 @@ from app.tests.const import MOCK_SUBMISSION, MOCK_COMMENT
 
 
 def test_submission_model(session):
-    Submission.create(session, **MOCK_SUBMISSION)
+    s = Submission.create(session, **MOCK_SUBMISSION)
 
     db_submissions = session.query(Submission).all()
 
@@ -17,6 +17,7 @@ def test_submission_model(session):
 
 
 def test_comment_model(session):
+    s = Submission.create(session, **MOCK_SUBMISSION)
     c = Comment.create(session, **MOCK_COMMENT)
 
     db_submissions = session.query(Submission).all()

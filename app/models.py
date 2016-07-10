@@ -49,3 +49,13 @@ class Comment(Model):
     ups = Column(db.Integer, nullable=False)
     downs = Column(db.Integer, nullable=False)
     score = Column(db.Integer, nullable=False)
+
+
+class CommentSentiment(Model):
+    __tablename__ = 'comment_sentiments'
+
+    comment_id = ReferenceCol('comments')
+    comment = relationship('Comment', backref='sentiment', uselist=False)
+
+    polarity = Column(db.Float)
+    subjectivity = Column(db.Float)

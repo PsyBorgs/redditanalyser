@@ -24,7 +24,7 @@ def apply_migrations(engine):
         command.upgrade(alembic_cfg, "head")
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def db(request):
     """Session-wide test database."""
     # create a SQLite DB in memory
@@ -39,13 +39,4 @@ def db(request):
 @pytest.fixture(scope='function')
 def session(db, request):
     """Creates a new database session for a test."""
-    _session = create_db_session(db.engine)
-    connection = db.engine.connect()
-    transaction = connection.begin()
-
-    def fin():
-        transaction.rollback()
-        connection.close()
-
-    request.addfinalizer(fin)
-    return _session
+    return create_db_session(db.engine)

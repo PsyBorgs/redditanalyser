@@ -1,10 +1,9 @@
 import pytest
-from textblob import TextBlob
 from sqlalchemy.orm import joinedload
 
 from app.models import (
     Submission, Comment, CommentSentiment, SubmissionSentiment)
-from app.sentiment import comment_sentiment_avg
+from app.sentiment import comment_sentiment, comment_sentiment_avg
 from app.tests.const import MOCK_SUBMISSION, MOCK_COMMENT1, MOCK_COMMENT2
 
 
@@ -40,24 +39,15 @@ def test_comment_model(session):
     assert s.comments == db_comments
 
 
-def _comment_sentiment(comment):
-    comment_blob = TextBlob(comment.body)
-    return {
-        'comment_id': comment.id,
-        'polarity': comment_blob.sentiment.polarity,
-        'subjectivity': comment_blob.sentiment.subjectivity
-    }
-
-
 def test_commentsentiment_model(session):
     s = Submission.create(session, **MOCK_SUBMISSION)
 
     c1 = Comment.create(session, **MOCK_COMMENT1)
-    c1_sentiment = _comment_sentiment(c1)
+    c1_sentiment = comment_sentiment(c1)
     c1s = CommentSentiment.create(session, **c1_sentiment)
 
     c2 = Comment.create(session, **MOCK_COMMENT2)
-    c2_sentiment = _comment_sentiment(c2)
+    c2_sentiment = comment_sentiment(c2)
     c2s = CommentSentiment.create(session, **c2_sentiment)
 
     # test object form
@@ -80,11 +70,11 @@ def test_submissionsentiment_model(session):
     s = Submission.create(session, **MOCK_SUBMISSION)
 
     c1 = Comment.create(session, **MOCK_COMMENT1)
-    c1_sentiment = _comment_sentiment(c1)
+    c1_sentiment = comment_sentiment(c1)
     c1s = CommentSentiment.create(session, **c1_sentiment)
 
     c2 = Comment.create(session, **MOCK_COMMENT2)
-    c2_sentiment = _comment_sentiment(c2)
+    c2_sentiment = comment_sentiment(c2)
     c2s = CommentSentiment.create(session, **c2_sentiment)
 
     comments = session.query(Comment).\

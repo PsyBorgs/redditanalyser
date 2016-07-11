@@ -27,7 +27,7 @@ MOCK_SUBMISSION = {
     'archived': True,
     'id': u'aaaaaa'
 }
-MOCK_COMMENT = {
+MOCK_COMMENT1 = {
     'body': u'This is an amazing comment. This app has excellent features!',
     'submission_id': u'aaaaaa',
     'name': u't1_bbbbbb',
@@ -38,4 +38,16 @@ MOCK_COMMENT = {
     'parent_id': u't3_aaaaaa',
     'score': 2,
     'id': u'bbbbbb'
+}
+MOCK_COMMENT2 = {
+    'body': u'I hate this subreddit! It is full of disgusting people.',
+    'submission_id': u'aaaaaa',
+    'name': u't1_cccccc',
+    'author': u'fakeuser2',
+    'downs': 1,
+    'created_utc': 1427063543.0,
+    'ups': -3,
+    'parent_id': u't3_aaaaaa',
+    'score': -2,
+    'id': u'cccccc'
 }

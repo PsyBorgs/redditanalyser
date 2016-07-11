@@ -31,6 +31,17 @@ class Submission(Model):
     archived = Column(db.Boolean, nullable=False)
 
     comments = relationship('Comment', backref='submission')
+    sentiment = relationship(
+        'SubmissionSentiment', backref='submission', uselist=False)
+
+
+class SubmissionSentiment(Model, SurrogatePK):
+    __tablename__ = 'submission_sentiments'
+
+    submission_id = ReferenceCol('submissions')
+
+    polarity = Column(db.Float)
+    subjectivity = Column(db.Float)
 
 
 class Comment(Model):

@@ -13,17 +13,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ALEMBIC_CONFIG = os.path.join(HERE, "..", "..", "alembic.ini")
 
 
-def apply_migrations(engine):
-    """Applies all alembic migrations."""
-    from alembic.config import Config
-    from alembic import command
-
-    alembic_cfg = Config(ALEMBIC_CONFIG)
-    with engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
-        command.upgrade(alembic_cfg, "head")
-
-
 @pytest.fixture(scope='function')
 def db(request):
     """Session-wide test database."""

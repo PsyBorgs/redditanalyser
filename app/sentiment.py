@@ -35,10 +35,6 @@ def comment_sentiment_avg(comment_sentiments):
 
 
 def main():
-    # session and engine info for exporting data
-    session_bind = session.get_bind()
-    engine = session_bind.engine
-
     # all cached submissions with eager-loaded comments
     submissions = session.query(Submission).\
         options(joinedload('comments')).\
@@ -68,13 +64,17 @@ def main():
                 s_sentiment, ignore_index=True)
 
     # export generated data
-    comment_sentiment_csv = os.path.join(
-        cfg.PROJECT_ROOT, 'data', 'comment_sentiments.csv')
-    comment_sentiments_df.to_csv(comment_sentiment_csv)
-
-    submission_sentiment_csv = os.path.join(
-        cfg.PROJECT_ROOT, 'data', 'submission_sentiments.csv')
-    submission_sentiments_df.to_csv(submission_sentiment_csv)
+    def _export_data(df, table_name):
+        session_bind = session.get_bind()
+        df.to_sql(
+            table_name,
+            session_bind.engine,
+            chunksize=1000,
+            if_exists='replace',
+            index_label='id'
+            )
+    _export_data(comment_sentiments_df, CommentSentiment.__tablename__)
+    _export_data(submission_sentiments_df, SubmissionSentiment.__tablename__)
 
 
 if __name__ == '__main__':

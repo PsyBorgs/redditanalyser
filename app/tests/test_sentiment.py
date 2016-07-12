@@ -34,7 +34,15 @@ def test_comment_sentiment_avg(session):
     comments = session.query(Comment).\
         options(joinedload('sentiment')).\
         all()
-    csa = sentiment.comment_sentiment_avg(comments)
+
+    comment_sentiments = []
+    for c in comments:
+        comment_sentiments.append({
+            "polarity": c.sentiment.polarity,
+            "subjectivity": c.sentiment.subjectivity
+        })
+
+    csa = sentiment.comment_sentiment_avg(comment_sentiments)
     csa.update({'submission_id': s.id})
 
     expected_keys = ['submission_id', 'polarity', 'subjectivity']

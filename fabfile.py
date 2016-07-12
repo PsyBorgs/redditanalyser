@@ -69,10 +69,11 @@ def scrape():
 
 
 def analyse():
-    """Run Reddit analyser.
+    """Run Reddit analyses.
     """
     with virtualenv():
-        local("python -m app.analyser")
+        local("python app/sentiment.py")
+        local("python app/analyser.py")
 
 
 def test():

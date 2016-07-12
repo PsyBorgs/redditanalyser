@@ -178,8 +178,7 @@ def process_subreddit(session, subreddit, period, limit, cached_ids=[],
 
 def main(args):
     # get a list of cached submission IDs
-    cached_submissions = session.query(Submission).all()
-    cached_ids = [s.id for s in cached_submissions]
+    cached_ids = [s.id for s in session.query(Submission).all()]
 
     # process targets
     for target in tqdm(iterable=cfg.TARGETS, desc="Reddit targets"):

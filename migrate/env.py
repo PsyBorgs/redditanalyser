@@ -3,7 +3,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
-from redditanalysis import models
+from app import models
 from settings import Config
 
 # this is the Alembic Config object, which provides

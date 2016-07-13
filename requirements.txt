@@ -1,5 +1,5 @@
 # Web
-praw==3.3.0
+praw==3.5.0
 requests>=2.9.1
 
 # Misc
@@ -13,6 +13,7 @@ beautifulsoup4==4.4.1
 pandas==0.17.1
 sqlalchemy==1.0.11
 alembic==0.8.3
+textblob==0.11.1
 
 # Testing
 pytest==2.8.7

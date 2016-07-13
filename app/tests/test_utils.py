@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from redditanalyser import utils
-from redditanalyser.tests import MOCK_TEXT_3
+from app import utils
+from app.tests.const import MOCK_TEXT_3
 
 
 def test_contraction_expander():

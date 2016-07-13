@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from redditanalyser import analyser
-from redditanalyser.tests import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
+from app import analyser
+from app.tests.const import MOCK_TEXT_1, MOCK_TEXT_2, MOCK_TEXT_3
 
 
 def test_strip_markdown():

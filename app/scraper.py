@@ -7,7 +7,7 @@ import praw
 from requests.exceptions import HTTPError
 from tqdm import tqdm
 
-from . import cfg, COMMENT_ATTRS, logger, reddit, session
+from . import cfg, logger, reddit, session
 from .models import Submission, Comment
 
 
@@ -17,22 +17,42 @@ def _model_columns(db_model):
     return [c.name for c in db_model.__table__.columns]
 
 
-def process_comments(comments):
+def process_comments(session, comments):
     """Inject comments data into the database.
+
+    :param session: database session object
+
+    :param comments: list of PRAW comment objects
     """
     for c in tqdm(comments, desc="Injecting comments into DB"):
-        Comment.create(session, **c)
+        db_comment = session.query(Comment).get(c['id'])
+        if db_comment:
+            db_comment.update(session, **c)
+        else:
+            Comment.create(session, **c)
 
 
-def process_submission(submission):
+def process_submission(session, submission):
     """Inject submission data into the database.
+
+    :param session: database session object
+
+    :param submission: PRAW submission object
     """
     logger.debug(process_submission.__doc__)
-    Submission.create(session, **submission)
+    db_submission = session.query(Submission).get(submission['id'])
+    if db_submission:
+        db_submission.update(session, **submission)
+    else:
+        Submission.create(session, **submission)
 
 
-def process_redditor(redditor, limit):
+def process_redditor(session, redditor, limit):
     """Process submissions and comments for the given Redditor.
+
+    :param session: database session object
+
+    :param redditor: PRAW redditor object
 
     :param limit: the maximum number of submissions to scrape from the
         subreddit
@@ -41,17 +61,17 @@ def process_redditor(redditor, limit):
     for entry in tqdm(iterable=entries, nested=True):
         if isinstance(entry, praw.objects.Comment):
             # process comment
-            process_comments([entry])
+            process_comments(session, [entry])
         else:
             # process submission
-            process_submission(entry)
+            process_submission(session, entry)
 
 
 def parse_comments(submission):
     """Parse a submission's comments according to the structure of the
     database model schema.
 
-    :param submission_id: the source submission's id
+    :param submission: PRAW submission object
 
     :return: a list of Submission comment dicts.
     """
@@ -82,6 +102,8 @@ def parse_submission(submission, include_comments=True):
     """Parse a submission's text and body (if applicable) according to the
     structure of the database model schema.
 
+    :param submission: PRAW submission object
+
     :param include_comments: include the submission's comments when True
 
     :return: Submission info and comments (if applicable).
@@ -107,14 +129,22 @@ def parse_submission(submission, include_comments=True):
     return info, comments
 
 
-def process_subreddit(subreddit, period, limit, cached_ids=None):
+def process_subreddit(session, subreddit, period, limit, cached_ids=[],
+                      recache=False):
     """Parse comments, title text, and selftext in a given subreddit.
+
+    :param subreddit: PRAW subreddit object
 
     :param period: the time period to scrape the subreddit over (day, week,
     month, etc.)
 
     :param limit: the maximum number of submissions to scrape from the
     subreddit
+
+    :param cached_ids: list of ids that have already been cached in the DB
+
+    :param recache: whether data should be re-cached (does not re-cache
+    archived submissions; boolean)
     """
     # set submission query params
     params = {
@@ -125,11 +155,14 @@ def process_subreddit(subreddit, period, limit, cached_ids=None):
     # process submissions
     submissions = subreddit.get_new(limit=limit, params=params)
     for s in tqdm(submissions, desc="Submissions", nested=True):
-        if cached_ids is not None and s.id not in cached_ids:
+        not_cached = (s.id not in cached_ids)
+        should_be_recached = (recache and s.id in cached_ids and
+                              not s.archived)
+        if not_cached or should_be_recached:
             try:
                 submission, comments = parse_submission(s)
-                process_comments(comments)
-                process_submission(submission)
+                process_submission(session, submission)
+                process_comments(session, comments)
             except HTTPError as exc:
                 logger.error(
                     "Skipping submission {0} due to HTTP status {1} error. "
@@ -143,24 +176,26 @@ def process_subreddit(subreddit, period, limit, cached_ids=None):
                         submission.permalink.encode("UTF-8")))
 
 
-def main():
+def main(args):
     # get a list of cached submission IDs
-    cached_submissions = session.query(Submission).all()
-    cached_ids = [s.id for s in cached_submissions]
+    cached_ids = [s.id for s in session.query(Submission).all()]
 
     # process targets
     for target in tqdm(iterable=cfg.TARGETS, desc="Reddit targets"):
         if target.startswith("/r/"):
             subreddit = target[3:]
             process_subreddit(
+                session=session,
                 subreddit=reddit.get_subreddit(subreddit),
                 period=cfg.PERIOD,
                 limit=cfg.LIMIT,
-                cached_ids=cached_ids
+                cached_ids=cached_ids,
+                recache=args.recache
                 )
         elif target.startswith("/u/"):
             redditor = target[3:]
             process_redditor(
+                session=session,
                 redditor=reddit.get_redditor(redditor),
                 limit=cfg.LIMIT
                 )
@@ -170,4 +205,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Scrape targeted Reddit data.')
+    parser.add_argument('--recache', action='store_true',
+                        help='Re-cache Reddit data')
+    args = parser.parse_args()
+
+    main(args)

@@ -102,12 +102,11 @@ def ReferenceCol(tablename, nullable=False, pk_name='id', **kwargs):
         )
 
 
-def create_db_session(db_uri):
+def create_db_session(engine):
     """Create a SQLAlchemy database session object.
 
     :param db_uri: SQLAlchemy database URI
     """
     # setup DB session
-    engine = create_engine(db_uri)
     Session = sessionmaker(bind=engine)
     return Session()

@@ -1,18 +1,24 @@
 import pytest
 import praw
 
-from redditanalyser import reddit, scraper
-from redditanalyser.models import Submission, Comment
+from app import reddit, scraper
+from app.models import Submission, Comment
+
+
+def get_and_parse_reddit_submission(submission_id):
+    reddit_submission = reddit.get_submission(submission_id=submission_id)
+
+    info, comments = scraper.parse_submission(reddit_submission, Submission)
+
+    return dict(info=info, comments=comments)
 
 
 def test_parse_submission_2lyq0v():
     submission_id = "2lyq0v"
-    submission = reddit.get_submission(submission_id=submission_id)
+    sub = get_and_parse_reddit_submission(submission_id)
+    si = sub['info']
 
-    # si = submission info; sc = submission comments
-    si, sc = scraper.parse_submission(submission, Submission)
-
-    # matchup with DB model schema
+    # matchup returned objects with DB model schema
     assert sorted(si.keys()) == sorted(scraper._model_columns(Submission))
 
     # individual values
@@ -27,22 +33,40 @@ def test_parse_submission_2lyq0v():
         ('title', 'How to become a data scientist in 8 easy steps '
                   '[Infographic]'),
         ('selftext', ''),
+        ('archived', True),
     ]
     for k, v in expected_values:
         assert si[k] == v
 
     # scores
     expected_scores = [
-        ('ups', 60),
+        ('ups', 50),
         ('downs', 0),
-        ('score', 60),
+        ('score', 50),
         ('num_comments', 26)
     ]
     for k, v in expected_scores:
         assert si[k] >= v
 
-    # comments
-    assert sc
+    # has comments?
+    assert sub['comments']
+
+
+def test_process_submission_2lyq0v(session):
+    submission_id = "2lyq0v"
+    sub = get_and_parse_reddit_submission(submission_id)
+
+    scraper.process_submission(session, sub['info'])
+
+    db_submissions = session.query(Submission).all()
+
+    assert len(db_submissions) == 1
+
+    ds_2lyq0v = db_submissions[0]
+    assert ds_2lyq0v.id == submission_id
+    assert ds_2lyq0v.archived
+    assert ds_2lyq0v.title == (
+        'How to become a data scientist in 8 easy steps [Infographic]')
 
 
 def _comments_for_2zxglv(sc, submission_id):
@@ -100,6 +124,7 @@ def test_parse_submission_2zxglv():
         ('author', 'teh_shit'),
         ('title', 'Best way to download comments from a subreddit, given a '
                   'time interval?'),
+        ('archived', True),
     ]
     for k, v in expected_values:
         assert si[k] == v

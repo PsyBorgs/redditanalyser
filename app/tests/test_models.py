@@ -80,7 +80,15 @@ def test_submissionsentiment_model(session):
     comments = session.query(Comment).\
         options(joinedload('sentiment')).\
         all()
-    submission_sentiment = comment_sentiment_avg(comments)
+
+    comment_sentiments = []
+    for c in comments:
+        comment_sentiments.append({
+            "polarity": c.sentiment.polarity,
+            "subjectivity": c.sentiment.subjectivity
+        })
+
+    submission_sentiment = comment_sentiment_avg(comment_sentiments)
     submission_sentiment.update({'submission_id': s.id})
 
     ss = SubmissionSentiment.create(session, **submission_sentiment)

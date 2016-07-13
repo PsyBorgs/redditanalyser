@@ -1,0 +1,6 @@
+TODOs:
+☐ sentiment analysis for all submissions and comments
+    ☐ calculate averages for comments within a submission
+    ☐ calculate averages for submissions within a subreddit
+    ☐ calculate weighted averages for submissions within a subreddit
+☐ setup pre-commit tests autorun script

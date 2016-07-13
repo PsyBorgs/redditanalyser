@@ -3,6 +3,7 @@
 import os.path
 from collections import defaultdict, Counter
 
+import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
@@ -12,9 +13,9 @@ from snudown import markdown
 from sqlalchemy.orm import joinedload
 from tqdm import tqdm
 
-from . import cfg, logger, reddit, session
-from .models import Submission
-from .utils import ContractionExpander, strip_punct
+from app import cfg, logger, reddit, session
+from app.models import Submission
+from app.utils import ContractionExpander, strip_punct
 
 
 # contraction handling
@@ -84,20 +85,24 @@ def subreddit_frequency_csv(submissions, subreddit_id):
 def subreddit_desc_stats(submissions):
     """Generate descriptive statistics for a given subreddit. Return dict.
     """
-    stats = {}
-
-    # number of submissions
-    stats['num_submissions'] = len(submissions)
-
-    # number of comments
+    num_submissions = len(submissions)
     num_comments = sum([len(s.comments) for s in submissions if s.comments])
-    stats['num_comments'] = num_comments
+    comments_per_submission = (float(num_comments) / num_submissions)
 
-    # average number of comments per submission
-    comments_per_submission = (float(num_comments) / stats['num_submissions'])
-    stats['comments_per_submission'] = comments_per_submission
+    # average sentiment scores
+    polarities = [s.sentiment.polarity for s in submissions if s.sentiment]
+    avg_polarity = np.mean(polarities) if polarities else None
+    subjectivities = [
+        s.sentiment.subjectivity for s in submissions if s.sentiment]
+    avg_subjectivity = np.mean(subjectivities) if subjectivities else None
 
-    return stats
+    return {
+        'num_submissions': num_submissions,
+        'num_comments': num_comments,
+        'comments_per_submission': comments_per_submission,
+        'sentiment_polarity_avg': avg_polarity,
+        'sentiment_subjectivity_avg': avg_subjectivity
+    }
 
 
 def main():
@@ -112,18 +117,22 @@ def main():
 
             # get subreddit submissions
             submissions = session.query(Submission).\
-                options(joinedload(Submission.comments)).\
+                options(
+                    joinedload(Submission.comments),
+                    joinedload(Submission.sentiment)
+                ).\
                 filter_by(subreddit_id=subreddit_id).\
                 all()
 
-            logger.info("Generating frequency table and descriptive "
-                        "statistics for {} subreddit...".
-                        format(subreddit_name)
-                        )
-            # frequency table
+            logger.warning(
+                "Generating frequency table and descriptive "
+                "statistics for {} subreddit...".
+                format(subreddit_name)
+                )
+            # generate frequency table
             subreddit_frequency_csv(submissions, subreddit_id)
 
-            # descriptive stats
+            # append descriptive stats to list
             subreddit_stats = subreddit_desc_stats(submissions)
             subreddit_stats['subreddit_name'] = subreddit_name
             subreddit_stats['subreddit_id'] = subreddit_id

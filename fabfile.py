@@ -57,6 +57,9 @@ def bootstrap():
     # initialise the database
     local("alembic upgrade head")
 
+    # download and cache NLTK corpora
+    local("python -m textblob.download_corpora")
+
 
 def scrape():
     """Run Reddit scraper.
@@ -66,10 +69,11 @@ def scrape():
 
 
 def analyse():
-    """Run Reddit analyser.
+    """Run Reddit analyses.
     """
     with virtualenv():
-        local("python -m app.analyser")
+        local("python app/sentiment.py")
+        local("python app/analyser.py")
 
 
 def test():

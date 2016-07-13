@@ -13,18 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ALEMBIC_CONFIG = os.path.join(HERE, "..", "..", "alembic.ini")
 
 
-def apply_migrations(engine):
-    """Applies all alembic migrations."""
-    from alembic.config import Config
-    from alembic import command
-
-    alembic_cfg = Config(ALEMBIC_CONFIG)
-    with engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
-        command.upgrade(alembic_cfg, "head")
-
-
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def db(request):
     """Session-wide test database."""
     # create a SQLite DB in memory
@@ -39,13 +28,4 @@ def db(request):
 @pytest.fixture(scope='function')
 def session(db, request):
     """Creates a new database session for a test."""
-    _session = create_db_session(db.engine)
-    connection = db.engine.connect()
-    transaction = connection.begin()
-
-    def fin():
-        transaction.rollback()
-        connection.close()
-
-    request.addfinalizer(fin)
-    return _session
+    return create_db_session(db.engine)
